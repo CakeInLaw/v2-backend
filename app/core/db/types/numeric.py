@@ -28,7 +28,7 @@ class Numeric(TypeDecorator[float]):
     ):
         super().__init__()
         assert precision > scale >= 1
-        self.impl = sa.Numeric(precision=precision, scale=scale)
+        self.impl = sa.Numeric(precision=precision, scale=scale, asdecimal=True)
 
         has_gte, has_gt, gt_value = gte is not None, gt is not None, None
         has_lte, has_lt, lt_value = lte is not None, lt is not None, None

@@ -45,10 +45,12 @@ NumericGteError = _VColumnValidationError[Decimal]('columns.numeric.gte')
 NumericGtError = _VColumnValidationError[Decimal]('columns.numeric.gt')
 NumericLteError = _VColumnValidationError[Decimal]('columns.numeric.lte')
 NumericLtError = _VColumnValidationError[Decimal]('columns.numeric.lt')
+NumericBigScaleError = _VColumnValidationError[int]('columns.numeric.big_scale')
+NumericBigPrecisionError = _VColumnValidationError[int]('columns.numeric.big_precision')
 
 StringMinLengthError = _VColumnValidationError[int]('columns.string.min_length')
 StringMaxLengthError = _VColumnValidationError[int]('columns.string.max_length')
-StringPatternError = _VColumnValidationError[str]('columns.string.incorrect_pattern')
+StringPatternError = ColumnValidationError('columns.string.incorrect_pattern')
 
 TimeGteError = _VColumnValidationError[time]('columns.time.gte')
 TimeLteError = _VColumnValidationError[time]('columns.time.lte')
