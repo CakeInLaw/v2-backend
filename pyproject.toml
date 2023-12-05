@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "cakeinlaw"
+version = "2.0a"
+description = ""
+authors = ["alta7700 <alta7700@mail.ru>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = {extras = ["all"], version = "^0.104.1"}
+sqlalchemy = {extras = ["asyncio"], version = "^2.0.23"}
+alembic = "^1.12.1"
+asyncpg = "^0.29.0"
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.11.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
