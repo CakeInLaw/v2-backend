@@ -6,10 +6,12 @@ from core.utils import import_string
 from ._base import ColumnValidator
 
 
+__all__ = ["EnumValidator"]
+
 ENUM = TypeVar('ENUM', IntEnum, StrEnum)
 
 
-class BooleanValidator(ColumnValidator[EnumSchema, ENUM]):
+class EnumValidator(ColumnValidator[EnumSchema, ENUM]):
 
     def __init__(self, schema: EnumSchema):
         super().__init__(schema=schema)
@@ -23,7 +25,7 @@ class BooleanValidator(ColumnValidator[EnumSchema, ENUM]):
                 value = int(value)
             value = self.python_type(value)
         elif isinstance(value, int):
-            if issubclass(self.python_type, StrEnum):
+            if self.is_str_enum:
                 value = str(value)
             value = self.python_type(value)
         return value

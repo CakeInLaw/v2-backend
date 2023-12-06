@@ -7,7 +7,6 @@ from ..._enums import CompositeTypes
 
 
 __all__ = ["OneOfCompositeSchema", "OneOfCompositeSchemaGenerator"]
-OOC_SCH = TypeVar("OOC_SCH", bound="OneOfCompositeSchema")
 
 
 class OneOfCompositeSchema(CompositeSchema):
@@ -15,6 +14,6 @@ class OneOfCompositeSchema(CompositeSchema):
 
 
 @composite_schemas.dispatch_for(type_=OneOfComposite)
-class OneOfCompositeSchemaGenerator(CompositeSchemaGenerator[OOC_SCH, MODEL]):
+class OneOfCompositeSchemaGenerator(CompositeSchemaGenerator[OneOfCompositeSchema, MODEL]):
     type = CompositeTypes.ONE_OF
     schema_cls = OneOfCompositeSchema

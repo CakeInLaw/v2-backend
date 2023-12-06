@@ -8,10 +8,10 @@ from .._schema_generator import kw_property, BaseAttrSchemaGenerator, AttrSchema
 from ..._enums import CompositeTypes
 
 
-__all__ = ["CompositeSchema", "CompositeSchemaGenerator", "composite_schemas"]
+__all__ = ["CompositeSchema", "CompositeSchemaGenerator", "composite_schemas", "C_SCH"]
 
-C_SCH = TypeVar("C_SCH", bound="BaseCompositeSchema")
-C_GEN = TypeVar("C_GEN", bound="BaseCompositeSchemaGenerator")
+C_SCH = TypeVar("C_SCH", bound="CompositeSchema")
+C_GEN = TypeVar("C_GEN", bound="CompositeSchemaGenerator")
 
 
 class CompositeSchema(BaseModel):
@@ -41,9 +41,7 @@ class CompositeSchemaGenerator(BaseAttrSchemaGenerator[C_SCH, MODEL, CompositePr
         return self._comp.attrs
 
 
-class CompositeSchemaGeneratorDispatcher(
-    AttrSchemaGeneratorDispatcher[C_GEN, type, CompositeProperty]
-):
+class CompositeSchemaGeneratorDispatcher(AttrSchemaGeneratorDispatcher[C_GEN, type, CompositeProperty]):
 
     def _dispatch_by_attr(self, model: Type[MODEL], attr: CompositeProperty) -> Type[C_GEN]:
         for base in attr.composite_class.__mro__:

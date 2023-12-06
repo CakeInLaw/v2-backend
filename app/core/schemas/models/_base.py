@@ -10,7 +10,7 @@ from .relations import RelationSchema, relation_schemas
 from .composite import CompositeSchema, composite_schemas
 
 
-__all__ = ["ModelSchema", "ModelSchemaGenerator", "model_schemas"]
+__all__ = ["ModelSchema", "M_SCH", "ModelSchemaGenerator", "model_schemas"]
 
 
 COL = TypeVar("COL", bound=ColumnSchema)

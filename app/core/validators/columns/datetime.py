@@ -5,6 +5,9 @@ from ._base import ColumnValidator
 from ..exceptions import DateTimeGteError, DateTimeLteError, DateTimeTimezoneAwareError, DateTimeTimezoneNaiveError
 
 
+__all__ = ["DateTimeValidator"]
+
+
 class DateTimeValidator(ColumnValidator[DateTimeSchema, datetime]):
     python_type = datetime
 

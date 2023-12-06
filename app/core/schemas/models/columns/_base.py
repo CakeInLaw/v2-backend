@@ -12,7 +12,7 @@ from ..._enums import FieldTypes
 __all__ = [
     "ColumnSchema", "ColumnSchemaGenerator",
     "column_schemas",
-    "COL_TYPE", "COL_INFO"
+    "COL_TYPE", "COL_INFO", "C_SCH"
 ]
 
 

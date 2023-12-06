@@ -3,7 +3,10 @@ from ._base import ColumnValidator
 from ..exceptions import IntegerGteError, IntegerLteError
 
 
-class BooleanValidator(ColumnValidator[IntegerSchema, int]):
+__all__ = ["IntegerValidator"]
+
+
+class IntegerValidator(ColumnValidator[IntegerSchema, int]):
     python_type = int
 
     def _init_validators(self):

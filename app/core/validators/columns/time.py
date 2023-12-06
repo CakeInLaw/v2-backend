@@ -5,6 +5,9 @@ from ._base import ColumnValidator
 from ..exceptions import TimeGteError, TimeLteError
 
 
+__all__ = ["TimeValidator"]
+
+
 class TimeValidator(ColumnValidator[TimeSchema, time]):
     python_type = time
 
@@ -25,5 +28,5 @@ class TimeValidator(ColumnValidator[TimeSchema, time]):
 
     def _validate_lte(self, value: time):
         if value > self._schema.lte:
-            raise TimeGteError(value=self._schema.lte)
+            raise TimeLteError(value=self._schema.lte)
 

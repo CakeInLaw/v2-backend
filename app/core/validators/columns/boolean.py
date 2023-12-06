@@ -2,6 +2,8 @@ from core.schemas.models.columns import BooleanSchema
 from ._base import ColumnValidator
 
 
+__all__ = ["BooleanValidator"]
+
 BOOL_TRUE = {1, '1', 'on', 't', 'true', 'y', 'yes'}
 BOOL_FALSE = {0, '0', 'off', 'f', 'false', 'n', 'no'}
 

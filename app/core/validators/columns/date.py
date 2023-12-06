@@ -5,6 +5,9 @@ from ._base import ColumnValidator
 from ..exceptions import DateGteError, DateLteError
 
 
+__all__ = ["DateValidator"]
+
+
 class DateValidator(ColumnValidator[DateSchema, date]):
     python_type = date
 

@@ -5,6 +5,9 @@ from ._base import ColumnValidator, T
 from ..exceptions import StringMinLengthError, StringMaxLengthError, StringPatternError
 
 
+__all__ = ["StringValidator"]
+
+
 class StringValidator(ColumnValidator[StringSchema, str]):
     python_type = str
 
