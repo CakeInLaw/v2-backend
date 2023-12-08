@@ -17,22 +17,28 @@ FR_SCH = TypeVar("FR_SCH", bound="ForwardRelationSchema")
 
 
 class ForwardRelationSchema(RelationSchema):
-    local_remote_pairs: dict[str, str]
+    local_key: str
+    remote_key: str
 
 
 class ForwardRelationSchemaGenerator(RelationSchemaGenerator[FR_SCH, MODEL]):
     schema_cls: Type[FR_SCH] = ForwardRelationSchema
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        assert len(self._rel.local_remote_pairs) == 1
 
     @kw_property
     def read_only(self) -> bool:
         return self._rel.info.get('read_only', False)
 
     @kw_property
-    def local_remote_pairs(self):
-        return {
-            local.key: remote.key
-            for local, remote in self._rel.local_remote_pairs
-        }
+    def local_key(self):
+        return self._rel.local_remote_pairs[0][0].key
+
+    @kw_property
+    def remote_key(self):
+        return self._rel.local_remote_pairs[0][1].key
 
 
 @relation_schemas.dispatch_for(RelationTypes.O2O)

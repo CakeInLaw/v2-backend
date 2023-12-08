@@ -17,22 +17,28 @@ RR_SCH = TypeVar("RR_SCH", bound="ReverseRelationSchema")
 
 
 class ReverseRelationSchema(RelationSchema):
-    local_remote_pairs: dict[str, str]
+    local_key: str
+    remote_key: str
 
 
 class ReverseRelationSchemaGenerator(RelationSchemaGenerator[RR_SCH, MODEL]):
     schema_cls: Type[RR_SCH] = ReverseRelationSchema
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        assert len(self._rel.local_remote_pairs) == 1
 
     @kw_property
     def read_only(self) -> bool:
         return self._rel.info.get('read_only', True)
 
     @kw_property
-    def local_remote_pairs(self):
-        return {
-            local.key: remote.key
-            for local, remote in self._rel.local_remote_pairs
-        }
+    def local_key(self):
+        return self._rel.local_remote_pairs[0][0].key
+
+    @kw_property
+    def remote_key(self):
+        return self._rel.local_remote_pairs[0][1].key
 
 
 @relation_schemas.dispatch_for(RelationTypes.REV_O2O)

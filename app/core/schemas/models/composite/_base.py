@@ -37,8 +37,8 @@ class CompositeSchemaGenerator(BaseAttrSchemaGenerator[C_SCH, MODEL, CompositePr
         return self._type
 
     @kw_property
-    def attrs(self):
-        return self._comp.attrs
+    def attrs(self) -> list[str]:
+        return list(self._comp.attrs)
 
 
 class CompositeSchemaGeneratorDispatcher(AttrSchemaGeneratorDispatcher[C_GEN, type, CompositeProperty]):

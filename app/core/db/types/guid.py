@@ -1,4 +1,4 @@
-from uuid import UUID, uuid4
+from uuid import UUID
 
 import sqlalchemy as sa
 from sqlalchemy.orm import mapped_column
@@ -14,6 +14,7 @@ __all__ = ["Guid", "GuidInfo", "guid"]
 class Guid(TypeDecorator[UUID]):
     impl = sa.UUID(as_uuid=True)
     repr_attrs = ()
+    cache_ok = True
 
 
 class GuidInfo(ColumnInfo):
@@ -37,7 +38,7 @@ def guid(
         primary_key=primary_key,
         nullable=nullable,
         unique=unique,
-        server_default='get_random_uuid()' if generated is not False else EMPTY,
+        server_default=sa.text('gen_random_uuid()') if generated is not False else EMPTY,
     )
     info = GuidInfo(read_only=read_only)
     return mapped_column(

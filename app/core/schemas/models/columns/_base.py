@@ -73,7 +73,7 @@ class ColumnSchemaGenerator(
         return self._col.default is not None or self._col.server_default is not None
 
 
-class RelationSchemaGeneratorDispatcher(
+class ColumnSchemaGeneratorDispatcher(
     AttrSchemaGeneratorDispatcher[COL_GEN, Type[COL_TYPE], sa.Column]
 ):
     def should_reg_by_type(self, type_):
@@ -84,4 +84,4 @@ class RelationSchemaGeneratorDispatcher(
         return self._reg_map[type_]
 
 
-column_schemas = RelationSchemaGeneratorDispatcher()
+column_schemas = ColumnSchemaGeneratorDispatcher()

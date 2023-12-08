@@ -1,18 +1,19 @@
-from typing import TypeVar, Any, Type
+from typing import TypeVar, Type
 
-from core.db.models import OBJECT, ListModel
+from core.db.models import OBJECT, ListModel, Model
 from ._base import ModelSchema, ModelSchemaGenerator, model_schemas
 from ._schema_generator import kw_property
 from .list import ListModelSchema
 
-__all__ = ["ObjectSchema", "ObjectSchemaGenerator"]
+__all__ = ["ObjectSchema", "ObjectSchemaGenerator", "O_SCH"]
+
 
 LM = TypeVar("LM", bound=ListModelSchema)
 O_SCH = TypeVar("O_SCH", bound="ObjectSchema")
 
 
 class ObjectSchema(ModelSchema):
-    lists: dict[str, LM]
+    lists: list[LM]
 
 
 class ObjectSchemaGenerator(ModelSchemaGenerator[O_SCH, OBJECT]):
@@ -20,9 +21,9 @@ class ObjectSchemaGenerator(ModelSchemaGenerator[O_SCH, OBJECT]):
 
     @kw_property
     def lists(self):
-        lists = {}
-        for name, rel in self.mapper.relationships.items():
-            rel_model = self._model.find_by_table(rel.target)
+        lists = []
+        for _, rel in self.mapper.relationships.items():
+            rel_model = Model.find_by_table(rel.target)
             if issubclass(rel_model, ListModel):
-                lists[name] = model_schemas.dispatch(rel_model).schema()
+                lists.append(model_schemas.dispatch(rel_model).schema())
         return lists

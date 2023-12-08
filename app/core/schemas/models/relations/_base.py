@@ -8,7 +8,7 @@ from .._schema_generator import kw_property, BaseAttrSchemaGenerator, AttrSchema
 from ..._enums import RelationTypes
 
 
-__all__ = ["RelationSchema", "RelationSchemaGenerator", "relation_schemas"]
+__all__ = ["RelationSchema", "RelationSchemaGenerator", "relation_schemas", "R_SCH"]
 
 
 R_SCH = TypeVar("R_SCH", bound="RelationSchema")

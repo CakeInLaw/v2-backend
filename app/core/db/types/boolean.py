@@ -12,13 +12,8 @@ __all__ = ["Boolean", "BooleanInfo", "boolean"]
 
 
 class Boolean(TypeDecorator[bool]):
-    impl: sa.Boolean
+    impl = sa.Boolean()
     repr_attrs = ()
-
-    def __init__(self):
-        super().__init__()
-
-        self.impl = sa.Boolean()
 
 
 class BooleanInfo(ColumnInfo):

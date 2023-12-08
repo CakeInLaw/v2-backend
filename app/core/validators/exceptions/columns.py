@@ -1,31 +1,43 @@
 from decimal import Decimal
-from typing import Any, Generic, TypeVar, Self, TYPE_CHECKING
+from typing import Generic, TypeVar, Self
 from datetime import date, datetime, time
+
+from ._base import ValidationError
 
 
 T = TypeVar('T')
+__all__ = [
+    "ColumnValidationError",
+    "NonNullable",
+    "DateGteError",
+    "DateLteError",
+    "DateTimeGteError",
+    "DateTimeLteError",
+    "DateTimeTimezoneAwareError",
+    "DateTimeTimezoneNaiveError",
+    "IntegerGteError",
+    "IntegerLteError",
+    "NumericGteError",
+    "NumericGtError",
+    "NumericLteError",
+    "NumericLtError",
+    "NumericBigScaleError",
+    "NumericBigPrecisionError",
+    "StringMinLengthError",
+    "StringMaxLengthError",
+    "StringPatternError",
+    "TimeGteError",
+    "TimeLteError",
+]
 
 
-class ColumnValidationError(Exception):
-    def __init__(self, _code: str, **kwargs):
-        self.code = _code
-        self.kw = kwargs
-
-    @property
-    def params(self) -> dict[str, Any]:
-        return self.kw
-
-    def __call__(self, **kwargs):
-        kw = {**self.kw, **kwargs} if self.kw else kwargs
-        return self.__class__(self.code, **kw)
-
-    def export(self):
-        return {'code': self.code, 'params': self.params}
+class ColumnValidationError(ValidationError):
+    pass
 
 
 class _VColumnValidationError(ColumnValidationError, Generic[T]):
-    if TYPE_CHECKING:
-        def __call__(self, value: T, **kwargs) -> Self: ...
+    def __call__(self, value: T, **kwargs) -> Self:
+        return super().__call__(value=value, **kwargs)
 
 
 NonNullable = ColumnValidationError('non_nullable')

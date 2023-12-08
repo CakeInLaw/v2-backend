@@ -2,10 +2,11 @@ from asyncio import iscoroutinefunction
 from typing import Generic, TypeVar, Callable, Type, Coroutine, Any, TYPE_CHECKING
 
 from core.schemas.models.columns import C_SCH
-from ..exceptions import NonNullable
+from ...exceptions import NonNullable
 
 if TYPE_CHECKING:
-    from ..models import MV
+    from core.repositories import M_REP
+    from .._base import MV
 
 __all__ = ["ColumnValidator", "CV"]
 
@@ -25,7 +26,7 @@ class ColumnValidator(Generic[C_SCH, T]):
     def _init_validators(self):
         pass
 
-    async def validate(self, value: T):
+    async def validate(self, value: T, ):
         if value is None:
             if not self._schema.nullable:
                 raise NonNullable
@@ -39,7 +40,7 @@ class ColumnValidator(Generic[C_SCH, T]):
     def _transform(self, value: T) -> T:
         return value
 
-    async def transform(self, value: T) -> T:
+    async def transform(self, value: T, repository: M_REP) -> T:
         """
         Brings the value to the desired type before validation.
         Don`t override this method. Override "_transform" to specify all transform cases.

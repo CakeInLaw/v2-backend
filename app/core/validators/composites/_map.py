@@ -18,5 +18,5 @@ composite_validators_map: dict[CompositeTypes, Type[CompV]] = {
 }
 
 
-def get_composite_validator(schema: C_SCH, model_validator: MV) -> CompV:
+def get_composite_validator(schema: C_SCH, model_validator: Type["MV"]) -> CompV:
     return composite_validators_map[schema.type](schema, model_validator)

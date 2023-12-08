@@ -1,8 +1,8 @@
 import re
 
 from core.schemas.models.columns import StringSchema
-from ._base import ColumnValidator, T
-from ..exceptions import StringMinLengthError, StringMaxLengthError, StringPatternError
+from ._base import ColumnValidator
+from ...exceptions import StringMinLengthError, StringMaxLengthError, StringPatternError
 
 
 __all__ = ["StringValidator"]

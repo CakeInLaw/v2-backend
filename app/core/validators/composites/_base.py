@@ -1,4 +1,4 @@
-from typing import TypeVar, Generic, TYPE_CHECKING, Any
+from typing import TypeVar, Generic, TYPE_CHECKING, Type
 
 from core.schemas.models.composite import C_SCH
 
@@ -11,16 +11,18 @@ T = TypeVar('T')
 
 
 class CompositeValidator(Generic[C_SCH, T]):
-    def __init__(self, schema: C_SCH, model_validator: "MV"):
+    def __init__(self, schema: C_SCH, model_validator: Type["MV"]):
         self._schema = schema
         self._model_validator = model_validator
 
-    def validate(self, value: dict[str, Any]):
-        for col_name, col_value in value.items():
-            self._model_validator.get_column(name=col_name).validate(value=value)
-
-    def transform(self, value: T) -> dict[str, Any]:
+    async def validate(self, value: T):
         raise NotImplementedError()
+
+    def transform(self, value: T) -> T:
+        raise NotImplementedError()
+
+    def modify_model_validator(self):
+        pass
 
 
 CompV = TypeVar('CompV', bound=CompositeValidator)

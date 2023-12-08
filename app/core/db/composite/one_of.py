@@ -6,17 +6,17 @@ from sqlalchemy.orm import composite
 __all__ = ["one_of", "OneOfComposite"]
 
 
-def one_of(cls_name: str, fields: tuple[str, ...], *, required: bool = False):
+def one_of(cls_name: str, attrs: tuple[str, ...], *, nullable: bool = False):
     cls = make_dataclass(
         cls_name=cls_name,
-        fields=((f, Any, field(default=None))for f in fields),
+        fields=((f, Any, field(default=None)) for f in attrs),
         bases=(OneOfComposite,),
     )
-    if required:
-        cls.__required__ = True
+    if nullable:
+        cls.__nullable__ = True
     return composite(
         cls,
-        *fields,
+        *attrs,
         info={'type': 'one_of'},
     )
 
@@ -25,29 +25,36 @@ class OneOfComposite:
     __dataclass_fields__: dict[str, Any]
     __match_args__: tuple[str, ...]
     __current_set__: str | None = None  # current active set field
-    __required__ = False
+    __nullable__ = False
 
     @classmethod
-    def from_kv(cls, key: str, value: Any):
-        self = cls(**{key: value})
-        for f in self.__match_args__:
-            setattr(self, f, None)
-        setattr(self, key, value)
-        return self
+    def __from_kv__(cls, key: str, value: Any):
+        return cls(**{key: value})
 
     @classmethod
-    def is_one_of_arg(cls, key: str):
+    def __empty__(cls):
+        return cls()
+
+    def __is_empty__(self) -> bool:
+        return self.__current_set__ is None
+
+    @property
+    def __current_value__(self):
+        if self.__current_set__ is None:
+            return None
+        return getattr(self, self.__current_set__)
+
+    @classmethod
+    def _is_one_of_arg(cls, key: str):
         return key in cls.__match_args__
 
     def __setattr__(self, key, value):
-        if self.is_one_of_arg(key):
+        if self._is_one_of_arg(key):
             if key != self.__current_set__:
                 if self.__current_set__:
                     super().__setattr__(self.__current_set__, None)
                 self.__current_set__ = None if value is None else key
-            super().__setattr__(key, value)
-        else:
-            super().__setattr__(key, value)
+        super().__setattr__(key, value)
 
     def __composite_values__(self):
         return tuple(getattr(self, f) if f == self.__current_set__ else None for f in self.__match_args__)

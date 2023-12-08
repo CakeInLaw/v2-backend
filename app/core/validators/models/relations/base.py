@@ -4,7 +4,7 @@ from core.db import Model
 from core.schemas.models.relations import R_SCH
 
 if TYPE_CHECKING:
-    from ..models import MV
+    from .._base import MV
 
 
 __all__ = ["RelationValidator", "RV"]
@@ -19,7 +19,7 @@ class RelationValidator(Generic[R_SCH]):
     async def validate(self, value: Any):
         raise NotImplementedError()
 
-    async def transform(self, value: Any) -> Any:
+    def transform(self, value: Any) -> Any:
         raise NotImplementedError()
 
     def modify_model_validator(self) -> None:

@@ -22,7 +22,6 @@ class RelationTypes(enum.StrEnum):
     REV_O2O = 'reverse_o2o'
     FK = 'fk'
     REV_FK = 'reverse_fk'
-    M2M = 'm2m'
 
 
 class EnumSubTypes(enum.StrEnum):
