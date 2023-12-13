@@ -1,25 +1,28 @@
-from typing import Type, ClassVar, TypeVar
+from typing import Type, ClassVar, TypeVar, Generic
 from uuid import UUID
 
 from sqlalchemy import inspect
 from sqlalchemy.orm import Mapped, declared_attr, relationship
 
 from ._base import Model
-from ._object import Object
+from ._object import OBJECT
 from ..relations import foreign_key
 from ..types import integer
 
 
 __all__ = ["ListModel", "LIST_MODEL"]
 
+LIST_MODEL = TypeVar('LIST_MODEL', bound="ListModel")
+PK = TypeVar('PK', int, str, UUID)
 
-class ListModel[O: Object, P: (int, str, UUID)](Model):
+
+class ListModel(Model, Generic[OBJECT, PK]):
     __abstract__ = True
 
-    __OWNER__: Type[O]
+    __OWNER__: Type[OBJECT]
     __BACK_POPULATES__: ClassVar[str]
 
-    ordering: Mapped[int] = integer(primary_key=True, t='small')
+    rn: Mapped[int] = integer(primary_key=True, t='small')
 
     @declared_attr
     @classmethod
@@ -32,7 +35,7 @@ class ListModel[O: Object, P: (int, str, UUID)](Model):
 
     @declared_attr
     @classmethod
-    def owner_id(cls) -> Mapped[P]:
+    def owner_id(cls) -> Mapped[PK]:
         assert len(inspect(cls.__OWNER__).primary_key) == 1
         return foreign_key(
             inspect(cls.__OWNER__).primary_key[0],
@@ -42,13 +45,10 @@ class ListModel[O: Object, P: (int, str, UUID)](Model):
 
     @declared_attr
     @classmethod
-    def owner(cls) -> Mapped[O]:
+    def owner(cls) -> Mapped[OBJECT]:
         return relationship(
             cls.__OWNER__,
             foreign_keys=[cls.owner_id],
             back_populates=cls.__BACK_POPULATES__,
             cascade='all',
         )
-
-
-LIST_MODEL = TypeVar('LIST_MODEL', bound=ListModel)

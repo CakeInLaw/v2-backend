@@ -1,10 +1,16 @@
 import enum
 
 
-__all__ = ["FieldTypes", "RelationTypes", "EnumSubTypes", "CompositeTypes"]
+__all__ = ["AttrTypes", "ColumnTypes", "RelationTypes", "EnumSubTypes", "CompositeTypes"]
 
 
-class FieldTypes(enum.StrEnum):
+class AttrTypes(enum.StrEnum):
+    COLUMN = 'column'
+    RELATION = 'relation'
+    COMPOSITE = 'composite'
+
+
+class ColumnTypes(enum.StrEnum):
     BOOLEAN = 'boolean'
     DATE = 'date'
     DATETIME = 'datetime'

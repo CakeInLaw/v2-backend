@@ -12,20 +12,20 @@ class DateValidator(ColumnValidator[DateSchema, date]):
     python_type = date
 
     def _init_validators(self):
-        if self._schema.gte is not None:
-            self._validators.append(self._validate_gte)
-        if self._schema.lte is not None:
-            self._validators.append(self._validate_lte)
+        if self.schema.gte is not None:
+            self.add_validator(self._validate_gte)
+        if self.schema.lte is not None:
+            self.add_validator(self._validate_lte)
 
-    def _transform(self, value: date | str) -> date:
+    def _transform(self, value: str | date) -> date:
         if isinstance(value, str):
             value = date.fromisoformat(value)
         return value
 
     def _validate_gte(self, value: date):
-        if value < self._schema.gte:
-            raise DateGteError(value=self._schema.gte)
+        if value < self.schema.gte:
+            raise DateGteError(value=self.schema.gte)
 
     def _validate_lte(self, value: date):
-        if value > self._schema.lte:
-            raise DateLteError(value=self._schema.lte)
+        if value > self.schema.lte:
+            raise DateLteError(value=self.schema.lte)

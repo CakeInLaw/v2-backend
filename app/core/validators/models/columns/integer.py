@@ -10,10 +10,10 @@ class IntegerValidator(ColumnValidator[IntegerSchema, int]):
     python_type = int
 
     def _init_validators(self):
-        if self._schema.gte is not None:
-            self._validators.append(self._validate_gte)
-        if self._schema.lte is not None:
-            self._validators.append(self._validate_lte)
+        if self.schema.gte is not None:
+            self.add_validator(self._validate_gte)
+        if self.schema.lte is not None:
+            self.add_validator(self._validate_lte)
 
     def _transform(self, value: str | int) -> int:
         if isinstance(value, str):
@@ -21,9 +21,9 @@ class IntegerValidator(ColumnValidator[IntegerSchema, int]):
         return value
 
     def _validate_gte(self, value: int):
-        if value < self._schema.gte:
-            raise IntegerGteError(value=self._schema.gte)
+        if value < self.schema.gte:
+            raise IntegerGteError(value=self.schema.gte)
 
     def _validate_lte(self, value: int):
-        if value > self._schema.lte:
-            raise IntegerLteError(value=self._schema.lte)
+        if value > self.schema.lte:
+            raise IntegerLteError(value=self.schema.lte)

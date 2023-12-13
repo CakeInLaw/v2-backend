@@ -13,6 +13,7 @@ LM_SCH = TypeVar("LM_SCH", bound="ListModelSchema")
 
 class ListModelSchema(ModelSchema):
     owner: str
+    owner_attr_name: str
 
 
 @model_schemas.dispatch_for(ListModel)
@@ -22,3 +23,7 @@ class ListModelSchemaGenerator(ModelSchemaGenerator[LM_SCH, LIST_MODEL]):
     @kw_property
     def owner(self) -> str:
         return self._model.__OWNER__.__full_name__
+
+    @kw_property
+    def owner_attr_name(self) -> str:
+        return self._model.__BACK_POPULATES__

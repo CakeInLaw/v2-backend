@@ -2,7 +2,7 @@ from core.db import types
 from core.db.models import MODEL
 from ._base import ColumnSchema, ColumnSchemaGenerator, column_schemas
 from .._schema_generator import kw_property
-from ..._enums import FieldTypes
+from ..._enums import ColumnTypes
 
 
 __all__ = ["IntegerSchema", "IntegerSchemaGenerator"]
@@ -18,7 +18,7 @@ class IntegerSchema(ColumnSchema):
 @column_schemas.dispatch_for(types.BigInteger)
 class IntegerSchemaGenerator(ColumnSchemaGenerator[types.Integer, types.IntegerInfo, IntegerSchema, MODEL]):
     schema_cls = IntegerSchema
-    _type = FieldTypes.INTEGER
+    _type = ColumnTypes.INTEGER
 
     @kw_property
     def gte(self) -> int:

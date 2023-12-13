@@ -33,7 +33,7 @@ class Model(DeclarativeBase):
         return cls.find(table.schema, table.name)
 
     @classmethod
-    def find_by_name(cls, name: str, raise_if_none: bool = False) -> Type["Model"]:
+    def find_by_name(cls, name: str, raise_if_none: bool = False) -> Type["MODEL"]:
         schema_name, _, table_name = name.partition('.')
         return cls.find(schema_name, table_name, raise_if_none=raise_if_none)
 

@@ -4,7 +4,7 @@ from core.db import types
 from core.db.models import MODEL
 from ._base import ColumnSchema, ColumnSchemaGenerator, column_schemas
 from .._schema_generator import kw_property
-from ..._enums import FieldTypes
+from ..._enums import ColumnTypes
 
 
 __all__ = ["NumericSchema", "NumericSchemaGenerator"]
@@ -22,7 +22,7 @@ class NumericSchema(ColumnSchema):
 @column_schemas.dispatch_for(types.Numeric)
 class NumericSchemaGenerator(ColumnSchemaGenerator[types.Numeric, types.NumericInfo, NumericSchema, MODEL]):
     schema_cls = NumericSchema
-    _type = FieldTypes.NUMERIC
+    _type = ColumnTypes.NUMERIC
 
     @kw_property
     def precision(self) -> int:

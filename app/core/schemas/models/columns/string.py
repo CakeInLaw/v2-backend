@@ -2,7 +2,7 @@ from core.db import types
 from core.db.models import MODEL
 from ._base import ColumnSchema, ColumnSchemaGenerator, column_schemas
 from .._schema_generator import kw_property
-from ..._enums import FieldTypes
+from ..._enums import ColumnTypes
 
 
 __all__ = ["StringSchema", "StringSchemaGenerator"]
@@ -19,8 +19,8 @@ class StringSchemaGenerator(ColumnSchemaGenerator[types.String, types.StringInfo
     schema_cls = StringSchema
 
     @kw_property
-    def type(self) -> FieldTypes:
-        return FieldTypes.TEXT if self.max_length is None else FieldTypes.STRING
+    def type(self) -> ColumnTypes:
+        return ColumnTypes.TEXT if self.max_length is None else ColumnTypes.STRING
 
     @kw_property
     def min_length(self) -> int | None:

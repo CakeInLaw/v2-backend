@@ -1,7 +1,7 @@
 from core.db import types
 from core.db.models import MODEL
 from ._base import ColumnSchema, ColumnSchemaGenerator, column_schemas
-from ..._enums import FieldTypes
+from ..._enums import ColumnTypes
 
 
 __all__ = ["GuidSchema", "GuidSchemaGenerator"]
@@ -14,4 +14,4 @@ class GuidSchema(ColumnSchema):
 @column_schemas.dispatch_for(types.Guid)
 class GuidSchemaGenerator(ColumnSchemaGenerator[types.Guid, types.GuidInfo, GuidSchema, MODEL]):
     schema_cls = GuidSchema
-    _type = FieldTypes.GUID
+    _type = ColumnTypes.GUID

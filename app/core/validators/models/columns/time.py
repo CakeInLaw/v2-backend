@@ -12,10 +12,10 @@ class TimeValidator(ColumnValidator[TimeSchema, time]):
     python_type = time
 
     def _init_validators(self):
-        if self._schema.gte is not None:
-            self._validators.append(self._validate_gte)
-        if self._schema.lte is not None:
-            self._validators.append(self._validate_lte)
+        if self.schema.gte is not None:
+            self.add_validator(self._validate_gte)
+        if self.schema.lte is not None:
+            self.add_validator(self._validate_lte)
 
     def _transform(self, value: time | str) -> time:
         if isinstance(value, str):
@@ -23,9 +23,9 @@ class TimeValidator(ColumnValidator[TimeSchema, time]):
         return value
 
     def _validate_gte(self, value: time):
-        if value < self._schema.gte:
-            raise TimeGteError(value=self._schema.gte)
+        if value < self.schema.gte:
+            raise TimeGteError(value=self.schema.gte)
 
     def _validate_lte(self, value: time):
-        if value > self._schema.lte:
-            raise TimeLteError(value=self._schema.lte)
+        if value > self.schema.lte:
+            raise TimeLteError(value=self.schema.lte)

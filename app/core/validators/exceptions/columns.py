@@ -9,6 +9,7 @@ T = TypeVar('T')
 __all__ = [
     "ColumnValidationError",
     "NonNullable",
+    "NotUnique",
     "DateGteError",
     "DateLteError",
     "DateTimeGteError",
@@ -41,6 +42,7 @@ class _VColumnValidationError(ColumnValidationError, Generic[T]):
 
 
 NonNullable = ColumnValidationError('non_nullable')
+NotUnique = ColumnValidationError('non_unique')
 
 DateGteError = _VColumnValidationError[date]('columns.date.gte')
 DateLteError = _VColumnValidationError[date]('columns.date.lte')

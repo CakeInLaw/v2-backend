@@ -1,11 +1,11 @@
 from typing import Type, TypeVar
 
 from sqlalchemy.orm import CompositeProperty
-from pydantic import BaseModel
 
 from core.db.models import MODEL
-from .._schema_generator import kw_property, BaseAttrSchemaGenerator, AttrSchemaGeneratorDispatcher
-from ..._enums import CompositeTypes
+from .._schema_generator import kw_property
+from .._attrs import AttrSchema, AttrSchemaGenerator, AttrSchemaGeneratorDispatcher
+from ..._enums import AttrTypes, CompositeTypes
 
 
 __all__ = ["CompositeSchema", "CompositeSchemaGenerator", "composite_schemas", "C_SCH"]
@@ -14,13 +14,13 @@ C_SCH = TypeVar("C_SCH", bound="CompositeSchema")
 C_GEN = TypeVar("C_GEN", bound="CompositeSchemaGenerator")
 
 
-class CompositeSchema(BaseModel):
-    name: str
+class CompositeSchema(AttrSchema):
     type: CompositeTypes
     attrs: list[str]
 
 
-class CompositeSchemaGenerator(BaseAttrSchemaGenerator[C_SCH, MODEL, CompositeProperty]):
+class CompositeSchemaGenerator(AttrSchemaGenerator[C_SCH, MODEL, CompositeProperty]):
+    _attr_type = AttrTypes.COMPOSITE
     _type: CompositeTypes
     schema_cls: Type[C_SCH]
 

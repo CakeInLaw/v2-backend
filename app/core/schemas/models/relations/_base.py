@@ -1,12 +1,11 @@
 from typing import Type, TypeVar
 
 from sqlalchemy.orm import RelationshipProperty, RelationshipDirection
-from pydantic import BaseModel
 
 from core.db.models import MODEL, Model, ListModel
-from .._schema_generator import kw_property, BaseAttrSchemaGenerator, AttrSchemaGeneratorDispatcher
-from ..._enums import RelationTypes
-
+from .._schema_generator import kw_property
+from .._attrs import AttrSchema, AttrSchemaGenerator, AttrSchemaGeneratorDispatcher
+from ..._enums import RelationTypes, AttrTypes
 
 __all__ = ["RelationSchema", "RelationSchemaGenerator", "relation_schemas", "R_SCH"]
 
@@ -15,14 +14,14 @@ R_SCH = TypeVar("R_SCH", bound="RelationSchema")
 R_GEN = TypeVar("R_GEN", bound="RelationSchemaGenerator")
 
 
-class RelationSchema(BaseModel):
-    name: str
+class RelationSchema(AttrSchema):
     type: RelationTypes
-    to: str
+    to_model: str
     read_only: bool
 
 
-class RelationSchemaGenerator(BaseAttrSchemaGenerator[R_SCH, MODEL, RelationshipProperty]):
+class RelationSchemaGenerator(AttrSchemaGenerator[R_SCH, MODEL, RelationshipProperty]):
+    _attr_type = AttrTypes.RELATION
     _type: RelationTypes
     schema_cls: Type[RelationSchema]
 
@@ -39,7 +38,7 @@ class RelationSchemaGenerator(BaseAttrSchemaGenerator[R_SCH, MODEL, Relationship
         return self._type
 
     @kw_property
-    def to(self):
+    def to_model(self):
         return Model.find_by_table(self._attr.target).__full_name__
 
     @kw_property

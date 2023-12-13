@@ -10,31 +10,35 @@ __all__ = ["StringValidator"]
 
 class StringValidator(ColumnValidator[StringSchema, str]):
     python_type = str
+    _allowed_transform_types = int, float
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.pattern = re.compile(self._schema.pattern) if self._schema.pattern else None
+        self.pattern = re.compile(self.schema.pattern) if self.schema.pattern else None
 
     def _init_validators(self):
-        if self._schema.min_length is not None:
-            self._validators.append(self._validate_min_length)
-        if self._schema.max_length is not None:
-            self._validators.append(self._validate_max_length)
-        if self._schema.pattern is not None:
-            self._validators.append(self._validate_pattern)
+        if self.schema.min_length is not None:
+            self.add_validator(self._validate_min_length)
+        if self.schema.max_length is not None:
+            self.add_validator(self._validate_max_length)
+        if self.schema.pattern is not None:
+            self.add_validator(self._validate_pattern)
 
     def _transform(self, value: str) -> str:
-        if isinstance(value, str):
-            value = value.strip()
-        return value
+        if not isinstance(value, str):
+            if isinstance(value, self._allowed_transform_types):
+                value = str(value)
+            else:
+                raise ValueError(f'Can`t convert {value} to str. Available types are {self._allowed_transform_types}')
+        return value.strip()
 
     def _validate_min_length(self, value: str):
-        if len(value) < self._schema.min_length:
-            raise StringMinLengthError(self._schema.min_length)
+        if len(value) < self.schema.min_length:
+            raise StringMinLengthError(self.schema.min_length)
 
     def _validate_max_length(self, value: str):
-        if len(value) > self._schema.max_length:
-            raise StringMaxLengthError(self._schema.max_length)
+        if len(value) > self.schema.max_length:
+            raise StringMaxLengthError(self.schema.max_length)
 
     def _validate_pattern(self, value: str):
         if not self.pattern.match(value):

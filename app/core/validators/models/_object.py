@@ -1,19 +1,23 @@
-from typing import TypeVar, Any, TYPE_CHECKING
+from typing import TypeVar, Any
 
 from core.schemas.models import O_SCH
+from ._attrs import A_VAL
 from ._base import ModelValidator
 from ..exceptions import ObjectErrors, UnexpectedAttr, RequiredAttr, ValidationError
-
-if TYPE_CHECKING:
-    from core.repositories import O_REP
 
 
 __all__ = ["ObjectValidator", "O_VAL"]
 
+O_VAL = TypeVar('O_VAL', bound="ObjectValidator")
+
 
 class ObjectValidator(ModelValidator[O_SCH]):
-    async def validate(self, data: dict[str, Any], repository: "ORepo") -> dict[str, Any]:
-        create = repository.current_instance is None
+
+    async def transform_pk(self, value: Any):
+        return await self.get_column(self.schema.primary_keys[0]).transform(value=value, repository=self.repository)
+
+    async def validate(self, data: dict[str, Any]) -> dict[str, Any]:
+        create = self.repository.current_instance is None
         errors = ObjectErrors()
 
         for attr in data:
@@ -27,19 +31,16 @@ class ObjectValidator(ModelValidator[O_SCH]):
             raise errors
 
         transformed_data = {}
+        attr_validators: dict[str, A_VAL] = {}
         for attr, value in data.items():
-            if attr in self._columns:
-                attr_validator = self.get_attr(attr)
-                value = await attr_validator.transform(value)
-                try:
-                    await attr_validator.validate(value)
-                    transformed_data[attr] = value
-                except ValidationError as e:
-                    errors.add(attr, e)
+            attr_validators[attr] = attr_validator = self.get_attr(attr)
+            transformed_data[attr] = await attr_validator.transform(value=value, repository=self.repository)
+        for attr, value in transformed_data.items():
+            try:
+                await attr_validators[attr].validate(value=value, repository=self.repository)
+            except ValidationError as e:
+                errors.add(attr, e)
         if errors:
             raise errors
 
         return transformed_data
-
-
-O_VAL = TypeVar('O_VAL', bound=ObjectValidator)

@@ -13,11 +13,11 @@ ENUM = TypeVar('ENUM', IntEnum, StrEnum)
 
 class EnumValidator(ColumnValidator[EnumSchema, ENUM]):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.python_type = import_string(f'enums.{self._schema.enum_type_name}')
+    def _post_init(self):
+        self.python_type = import_string(f'enums.{self.schema.enum_type_name}')
         self.is_int_enum = issubclass(self.python_type, IntEnum)
         self.is_str_enum = issubclass(self.python_type, StrEnum)
+        super()._post_init()
 
     def _transform(self, value: str | int | ENUM) -> ENUM:
         if isinstance(value, str):

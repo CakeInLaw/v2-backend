@@ -4,7 +4,7 @@ from core.db import types
 from core.db.models import MODEL
 from ._base import ColumnSchema, ColumnSchemaGenerator, column_schemas
 from .._schema_generator import kw_property
-from ..._enums import FieldTypes
+from ..._enums import ColumnTypes
 
 
 __all__ = ["DateTimeSchema", "DateTimeSchemaGenerator"]
@@ -20,7 +20,7 @@ class DateTimeSchema(ColumnSchema):
 @column_schemas.dispatch_for(types.DateTime)
 class DateTimeSchemaGenerator(ColumnSchemaGenerator[types.DateTime, types.DateTimeInfo, DateTimeSchema, MODEL]):
     schema_cls = DateTimeSchema
-    _type = FieldTypes.DATETIME
+    _type = ColumnTypes.DATETIME
 
     @kw_property
     def gte(self) -> datetime | None:
