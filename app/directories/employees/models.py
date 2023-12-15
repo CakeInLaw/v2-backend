@@ -12,7 +12,8 @@ if TYPE_CHECKING:
 
 
 class Employee(Directory):
-    user_id: Mapped[UUID] = one_to_one('directories.users.id', nullable=True)
-    user: Mapped["User"] = relationship(foreign_keys=[user_id])
+    user_id, user = one_to_one('directories.users.id', nullable=True)
+    user_id: Mapped[UUID]
+    user: Mapped["User"]
 
     name: Mapped[str] = types.string(max_length=100)

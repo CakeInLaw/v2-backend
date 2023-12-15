@@ -50,6 +50,7 @@ def time(
         nullable: bool = EMPTY,
         unique: bool = EMPTY,
         read_only: bool = False,
+        hidden: bool = False,
         server_default: str | sa.TextClause = None,
 ):
     cleaned_kwargs = clean_kwargs(
@@ -58,7 +59,7 @@ def time(
         nullable=nullable,
         unique=unique,
     )
-    info = TimeInfo(read_only=read_only, fmt=fmt)
+    info = TimeInfo(read_only=read_only, hidden=hidden, fmt=fmt)
     return mapped_column(
         Time(timezone=timezone, gte=gte, lte=lte),
         info=info,

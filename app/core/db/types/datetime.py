@@ -53,6 +53,7 @@ def datetime(
         nullable: bool = EMPTY,
         unique: bool = EMPTY,
         read_only: bool = False,
+        hidden: bool = False,
         server_default: str | sa.TextClause = None,
         auto_now_add: bool = False
 ):
@@ -62,7 +63,7 @@ def datetime(
         nullable=nullable,
         unique=unique,
     )
-    info = DateTimeInfo(read_only=read_only, fmt=fmt)
+    info = DateTimeInfo(read_only=read_only, hidden=hidden, fmt=fmt)
     if auto_now_add:
         server_default = sa.func.now()
     return mapped_column(

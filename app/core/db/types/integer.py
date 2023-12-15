@@ -77,6 +77,7 @@ def integer(
         autoincrement: bool = "auto",
         primary_key: bool = False,
         read_only: bool = EMPTY,
+        hidden: bool = False,
         server_default: str | sa.TextClause = None,
 ):
     cleaned_kwargs = clean_kwargs(
@@ -88,7 +89,7 @@ def integer(
     if primary_key and autoincrement in (True, 'auto'):
         read_only = True if read_only is EMPTY else read_only
     read_only = False if read_only is EMPTY else read_only
-    info = IntegerInfo(read_only=read_only)
+    info = IntegerInfo(read_only=read_only, hidden=hidden)
 
     gte = 0 if non_negative else 1 if positive else gte
     lte = 0 if non_positive else -1 if negative else lte

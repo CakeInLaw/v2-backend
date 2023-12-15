@@ -25,13 +25,10 @@ COL_GEN = TypeVar("COL_GEN", bound="ColumnSchemaGenerator")
 class ColumnSchema(AttrSchema):
     type: ColumnTypes
     read_only: bool
+    hidden: bool
     nullable: bool
     has_default: bool
     unique: bool
-
-    @property
-    def required(self) -> bool:
-        return self.has_default or not self.nullable
 
 
 class ColumnSchemaGenerator(
@@ -68,6 +65,10 @@ class ColumnSchemaGenerator(
     @kw_property
     def read_only(self) -> bool:
         return self._col_info['read_only']
+
+    @kw_property
+    def hidden(self) -> bool:
+        return self._col_info['hidden']
 
     @kw_property
     def has_default(self) -> bool:

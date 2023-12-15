@@ -8,6 +8,7 @@ class AttrTypes(enum.StrEnum):
     COLUMN = 'column'
     RELATION = 'relation'
     COMPOSITE = 'composite'
+    PROPERTY = 'property'
 
 
 class ColumnTypes(enum.StrEnum):

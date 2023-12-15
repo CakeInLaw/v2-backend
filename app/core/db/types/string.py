@@ -45,6 +45,7 @@ def string(
         unique: bool = EMPTY,
         primary_key: bool = False,
         read_only: bool = False,
+        hidden: bool = False,
         pattern: str = None,
         server_default: str | sa.TextClause = None,
 ):
@@ -54,7 +55,7 @@ def string(
         nullable=nullable,
         unique=unique,
     )
-    info = StringInfo(read_only=read_only, pattern=pattern)
+    info = StringInfo(read_only=read_only, hidden=hidden, pattern=pattern)
     return mapped_column(
         String(min_length=min_length, max_length=max_length),
         primary_key=primary_key,

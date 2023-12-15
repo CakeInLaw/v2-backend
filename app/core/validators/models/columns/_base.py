@@ -57,10 +57,10 @@ class ColumnValidator(AttrValidator[C_SCH, T]):
         return value
 
     def is_available(self) -> bool:
-        return not self.schema.read_only
+        return not (self.schema.hidden or self.schema.read_only)
 
     def is_required(self) -> bool:
-        return not self.schema.read_only and self.schema.required
+        return not self.schema.has_default
 
     def modify_model_validator(self):
         if self.is_available():
@@ -73,14 +73,6 @@ class ColumnValidator(AttrValidator[C_SCH, T]):
         return self.schema.unique or (len(pks) == 1 and pks[0] == self.schema.name)
 
     async def _validate_unique(self, value: Any, repository: "M_REP"):
-        print(self.schema.name, value)
-        print()
-        print()
-        print()
-        print()
-        print()
-        print()
-        print()
         if not await repository.check_unique(self.schema.name, value=value):
             raise NotUnique
 

@@ -28,6 +28,7 @@ def guid(
         primary_key: bool = False,
         generated: bool = EMPTY,
         read_only: bool = EMPTY,
+        hidden: bool = False,
 ):
     if primary_key:
         assert unique is EMPTY
@@ -40,7 +41,7 @@ def guid(
         unique=unique,
         server_default=sa.text('gen_random_uuid()') if generated is not False else EMPTY,
     )
-    info = GuidInfo(read_only=read_only)
+    info = GuidInfo(read_only=read_only, hidden=hidden)
     return mapped_column(
         Guid(),
         info=info,

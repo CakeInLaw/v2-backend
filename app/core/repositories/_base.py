@@ -1,6 +1,6 @@
 from typing import TypeVar, Any, Generic, Type, cast
 
-from sqlalchemy import select, Select
+from sqlalchemy import select, Select, BinaryExpression
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.db.models import Object, MODEL
@@ -55,7 +55,10 @@ class ModelRepository(Generic[MODEL, M_VAL, M_SCH], metaclass=ModelRepositoryMet
     ) -> Select[tuple[MODEL]]:
         return query
 
+    def _check_unique_whereclause(self, attr_name: str, value: Any) -> BinaryExpression[bool]:
+        return cast(BinaryExpression[bool], getattr(self.model, attr_name) == value)
+
     async def check_unique(self, attr_name: str, value: Any) -> bool:
-        query = select(self.model).where(cast(Any, getattr(self.model, attr_name) == value))
+        query = select(self.model).where(self._check_unique_whereclause(attr_name=attr_name, value=value))
         query = self._modify_check_unique_query(query, attr_name, value)
         return not await self.session.scalar(select(query.exists()))

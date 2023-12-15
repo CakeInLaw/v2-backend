@@ -44,6 +44,7 @@ def date(
         nullable: bool = EMPTY,
         unique: bool = EMPTY,
         read_only: bool = False,
+        hidden: bool = False,
         server_default: str | sa.TextClause = None,
 ):
     cleaned_kwargs = clean_kwargs(
@@ -52,7 +53,7 @@ def date(
         nullable=nullable,
         unique=unique,
     )
-    info = DateInfo(read_only=read_only, fmt=fmt)
+    info = DateInfo(read_only=read_only, hidden=hidden, fmt=fmt)
     return mapped_column(
         Date(gte=gte, lte=lte),
         info=info,

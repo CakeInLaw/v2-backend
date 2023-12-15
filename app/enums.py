@@ -1,9 +1,10 @@
-from enum import StrEnum
+from enum import IntEnum
+
+__all__ = ["UserRoles"]
 
 
-__all__ = ["UserTypes"]
-
-
-class UserTypes(StrEnum):
-    SUPERUSER = 'S'
-    TOVAROVED = 'T'
+class UserRoles(IntEnum):
+    SUPERUSER = 1
+    CHIEF_COOK = 2
+    TOVAROVED = 3
+    COOK = 4

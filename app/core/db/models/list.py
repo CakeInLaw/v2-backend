@@ -39,8 +39,9 @@ class ListModel(Model, Generic[OBJECT, PK]):
         assert len(inspect(cls.__OWNER__).primary_key) == 1
         return foreign_key(
             inspect(cls.__OWNER__).primary_key[0],
-            ondelete="CASCADE",
+            ondelete='CASCADE',
             primary_key=True,
+            no_relation=True
         )
 
     @declared_attr

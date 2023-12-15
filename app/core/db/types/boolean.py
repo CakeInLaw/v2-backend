@@ -25,6 +25,7 @@ def boolean(
         default_factory: Callable[[], bool | None] = EMPTY,
         nullable: bool = EMPTY,
         read_only: bool = False,
+        hidden: bool = False,
         server_default: str | sa.TextClause = None,
 ):
     cleaned_kwargs = clean_kwargs(
@@ -32,7 +33,7 @@ def boolean(
         default_factory=default_factory,
         nullable=nullable,
     )
-    info = BooleanInfo(read_only=read_only)
+    info = BooleanInfo(read_only=read_only, hidden=hidden)
 
     return mapped_column(
         Boolean(),

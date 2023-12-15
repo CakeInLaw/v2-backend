@@ -28,3 +28,4 @@ class TypeDecorator(sa.TypeDecorator[T]):
 
 class ColumnInfo(TypedDict):
     read_only: bool
+    hidden: bool

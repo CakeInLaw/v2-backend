@@ -79,7 +79,6 @@ class ObjectRepository(ModelRepository[OBJECT, O_VAL, O_SCH], metaclass=ObjectRe
         valid_data = await self.validate(data)
         instance = self.model(**valid_data)
         self.session.add(instance)
-        await self.session.flush()
         return instance
 
     async def update(self, data: dict[str, Any]) -> OBJECT:
@@ -88,7 +87,6 @@ class ObjectRepository(ModelRepository[OBJECT, O_VAL, O_SCH], metaclass=ObjectRe
         valid_data = await self.validate(data)
         for attr, value in valid_data.items():
             setattr(instance, attr, value)
-        await self.session.flush()
         return instance
 
     async def delete(self, pk: Any) -> None:

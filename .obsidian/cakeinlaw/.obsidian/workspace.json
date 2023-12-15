@@ -1,0 +1,181 @@
+{
+  "main": {
+    "id": "34e9d97d100eaff1",
+    "type": "split",
+    "children": [
+      {
+        "id": "f3147e2ecdf76bd7",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "c44eafc77cf3dc27",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {}
+            }
+          },
+          {
+            "id": "0d087700b3fdc04a",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Слои/Models.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "241d39cf40acadc4",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Слои/Schema.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          }
+        ],
+        "currentTab": 2
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "4f6b897d29ec2fa1",
+    "type": "split",
+    "children": [
+      {
+        "id": "bacc57fc8dc83777",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "d9c9ead2e765b52f",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "d6e87d692e16fdc9",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "bf2046f49c4167f1",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {}
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "2a3bd826bba8a9c6",
+    "type": "split",
+    "children": [
+      {
+        "id": "8a061b262e2b0335",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "b9250f5c7fd6c5ae",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Слои/Schema.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "8407d0a907df52d1",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "Слои/Schema.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "38055856452204b9",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true
+              }
+            }
+          },
+          {
+            "id": "e12d37b8a216063d",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Слои/Schema.md"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Меню быстрого перехода": false,
+      "graph:Граф": false,
+      "canvas:Создать новый холст": false,
+      "daily-notes:Сегодняшняя заметка": false,
+      "templates:Вставить шаблон": false,
+      "command-palette:Открыть палитру команд": false
+    }
+  },
+  "active": "241d39cf40acadc4",
+  "lastOpenFiles": [
+    "Слои/Models.md",
+    "Слои/Serializers.md",
+    "Слои/Services.md",
+    "Слои/Validators.md",
+    "Слои/Repositories.md",
+    "Слои/Schema.md",
+    "Слои",
+    "Модели бд"
+  ]
+}

@@ -111,6 +111,7 @@ def numeric(
         nullable: bool = EMPTY,
         unique: bool = EMPTY,
         read_only: bool = False,
+        hidden: bool = False,
         server_default: str | sa.TextClause = None,
 ):
     cleaned_kwargs = clean_kwargs(
@@ -119,7 +120,7 @@ def numeric(
         nullable=nullable,
         unique=unique,
     )
-    info = NumericInfo(read_only=read_only)
+    info = NumericInfo(read_only=read_only, hidden=hidden)
 
     gt = Decimal('0') if positive else gt
     gte = Decimal('0') if non_negative else gte

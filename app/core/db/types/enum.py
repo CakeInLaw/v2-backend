@@ -64,6 +64,7 @@ def enum(
         default_factory: Callable[[], Optional[ENUM_TYPE]] = EMPTY,
         nullable: bool = EMPTY,
         read_only: bool = False,
+        hidden: bool = False,
         server_default: str | sa.TextClause = None,
 ):
     cleaned_kwargs = clean_kwargs(
@@ -71,7 +72,7 @@ def enum(
         default_factory=default_factory,
         nullable=nullable,
     )
-    info = EnumInfo(read_only=read_only)
+    info = EnumInfo(read_only=read_only, hidden=hidden)
 
     return mapped_column(
         Enum(enum_type),
