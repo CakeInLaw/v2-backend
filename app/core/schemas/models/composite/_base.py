@@ -47,7 +47,7 @@ class CompositeSchemaGeneratorDispatcher(AttrSchemaGeneratorDispatcher[C_GEN, ty
         for base in attr.composite_class.__mro__:
             if base in self._reg_map:
                 return self._reg_map[base]
-        raise ValueError(f'No {model} or it`s child registered')
+        raise ValueError(f'No {model} or it`s parent registered')
 
 
 composite_schemas = CompositeSchemaGeneratorDispatcher()

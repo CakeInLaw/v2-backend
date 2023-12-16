@@ -4,7 +4,7 @@ from typing import TypedDict, TypeVar, Any
 import sqlalchemy as sa
 
 
-__all__ = ["TypeDecorator", "ColumnInfo"]
+__all__ = ["TypeDecorator", "ColumnInfo", "COL_TYPE", "COL_INFO"]
 
 
 T = TypeVar('T', bound=Any)
@@ -29,3 +29,7 @@ class TypeDecorator(sa.TypeDecorator[T]):
 class ColumnInfo(TypedDict):
     read_only: bool
     hidden: bool
+
+
+COL_TYPE = TypeVar('COL_TYPE', bound=TypeDecorator)
+COL_INFO = TypeVar('COL_INFO', bound=ColumnInfo)

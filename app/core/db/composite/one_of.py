@@ -1,5 +1,5 @@
 from dataclasses import make_dataclass, field
-from typing import Any
+from typing import Any, Self, cast, Type
 
 from sqlalchemy.orm import composite
 
@@ -7,15 +7,15 @@ __all__ = ["one_of", "OneOfComposite"]
 
 
 def one_of(cls_name: str, attrs: tuple[str, ...], *, nullable: bool = False):
-    cls = make_dataclass(
+    cls = cast(Type[OneOfComposite], make_dataclass(
         cls_name=cls_name,
         fields=((f, Any, field(default=None)) for f in attrs),
         bases=(OneOfComposite,),
-    )
+    ))
     if nullable:
         cls.__nullable__ = True
     return composite(
-        cls,
+        cls.__from_tuple__,
         *attrs,
         info={'type': 'one_of'},
     )
@@ -28,7 +28,13 @@ class OneOfComposite:
     __nullable__ = False
 
     @classmethod
-    def __from_kv__(cls, key: str, value: Any):
+    def __from_tuple__(cls, kv: tuple[str, Any] | None) -> Self:
+        if kv is None:
+            return cls()
+        return cls.__from_kv__(*kv)
+
+    @classmethod
+    def __from_kv__(cls, key: str, value: Any) -> Self:
         return cls(**{key: value})
 
     @classmethod

@@ -29,7 +29,7 @@ class Model(DeclarativeBase):
         return cls.__SCHEMA__
 
     @classmethod
-    def find_by_table(cls, table: Table) -> Type["Model"]:
+    def find_by_table(cls, table: Table) -> Type["MODEL"]:
         return cls.find(table.schema, table.name)
 
     @classmethod
@@ -38,7 +38,7 @@ class Model(DeclarativeBase):
         return cls.find(schema_name, table_name, raise_if_none=raise_if_none)
 
     @classmethod
-    def find(cls, schema_name: str, table_name: str, raise_if_none: bool = False) -> Type["Model"]:
+    def find(cls, schema_name: str, table_name: str, raise_if_none: bool = False) -> Type["MODEL"]:
         assert schema_name in cls.available_namespaces
         model = _models.get((schema_name, table_name))
         if raise_if_none and model is None:
@@ -83,3 +83,7 @@ def receive_after_mapper_constructed(_: Mapper, class_: Type[MODEL]):
     table = cast(Table, class_.__table__)
     assert table.schema in Model.available_namespaces, f'"{table.schema}" schema name is not available'
     _models[(table.schema, table.name)] = class_
+
+
+# @event.listens_for(Model, 'after_mapper_constructed', propagate=True)
+# def

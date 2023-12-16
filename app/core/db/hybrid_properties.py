@@ -11,7 +11,7 @@ def hybrid_property_helper(
         writeable: bool = True,
         **kwargs
 ):
-    def wrapper(func: _HybridGetterType[T]):
+    def wrapper(func: _HybridGetterType[T]) -> hybrid_property[T]:
         prop = hybrid_property(func)
         prop.info.update({
             'required': required,

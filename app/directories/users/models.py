@@ -22,7 +22,6 @@ class User(Directory):
         setter_min_length=8,
         setter_max_length=30,
     )
-    # @hybrid_property
     def password(self) -> str:
         return getattr(self, '_orig_password', None)
 

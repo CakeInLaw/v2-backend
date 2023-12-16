@@ -36,9 +36,6 @@ class ModelSchemaGenerator(BaseSchemaGenerator[M_SCH, MODEL]):
         super().__init__(model=model)
         self.mapper = self._model.__mapper__
         self.table = cast(sa.Table, self._model.__table__)
-        for d in self.mapper.all_orm_descriptors:
-            if d.extension_type == HybridExtensionType.HYBRID_PROPERTY:
-                print(d.__dict__)
 
     @kw_property
     def namespace(self) -> str:
