@@ -32,7 +32,7 @@ class PropertySchemaGenerator(AttrSchemaGenerator[PROP_SCH, QueryableAttribute])
         int: constr.IntegerConstraint,
         Decimal: constr.NumericConstraint,
         str: constr.StringConstraint,
-        time: constr.TimeConstrain,
+        time: constr.TimeConstraint,
     }
 
     @property

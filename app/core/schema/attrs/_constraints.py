@@ -12,7 +12,7 @@ __all__ = [
     "Constraint", "C",
     "BooleanConstraint", "DateConstraint", "DateTimeConstraint",
     "EnumConstraint", "GuidConstraint", "IntegerConstraint",
-    "NumericConstraint", "StringConstraint", "TimeConstrain"
+    "NumericConstraint", "StringConstraint", "TimeConstraint"
 ]
 
 
@@ -89,7 +89,7 @@ class StringConstraint(Constraint):
         return Types.TEXT
 
 
-class TimeConstrain(Constraint):
+class TimeConstraint(Constraint):
     _type: ClassVar[Types] = Types.TIME
 
     gte: time | None = None

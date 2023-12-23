@@ -2,7 +2,8 @@ from typing import TypeVar
 
 from pydantic import BaseModel
 
-from .attrs import A_SCH
+from .attrs import A_SCH, COL_SCH, REL_SCH, COMP_SCH, PROP_SCH, LIST_SCH
+from ._types import Attrs
 
 
 __all__ = [
@@ -16,9 +17,22 @@ class ModelSchema(BaseModel):
     primary_key: str
     attrs: list[A_SCH]
 
+    def get_columns(self) -> list[COL_SCH]:
+        return list(filter(lambda a: a.type == Attrs.COLUMN, self.attrs))
+
+    def get_relations(self) -> list[REL_SCH]:
+        return list(filter(lambda a: a.type == Attrs.RELATION, self.attrs))
+
+    def get_composites(self) -> list[COMP_SCH]:
+        return list(filter(lambda a: a.type == Attrs.COMPOSITE, self.attrs))
+
+    def get_properties(self) -> list[PROP_SCH]:
+        return list(filter(lambda a: a.type == Attrs.PROPERTY, self.attrs))
+
 
 class ObjectSchema(ModelSchema):
-    pass
+    def get_lists(self) -> list[LIST_SCH]:
+        return list(filter(lambda a: a.type == Attrs.LIST, self.attrs))
 
 
 class DirectorySchema(ObjectSchema):

@@ -4,8 +4,6 @@ __all__ = [
     "ValidationError",
     "UnexpectedAttr",
     "RequiredAttr",
-    "NonNullable",
-    "NotUnique",
 ]
 
 
@@ -28,5 +26,3 @@ class ValidationError(Exception):
 
 UnexpectedAttr = ValidationError('unexpected_attr')
 RequiredAttr = ValidationError('required_attr')
-NonNullable = ValidationError('non_nullable')
-NotUnique = ValidationError('non_unique')
