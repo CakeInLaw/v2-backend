@@ -26,7 +26,6 @@ class ModelSchema(BaseModel):
     columns: list[C_SCH]
     relations: list[R_SCH]
     composites: list[COMP_SCH]
-    # properties: list[]
 
 
 class ModelSchemaGenerator(BaseSchemaGenerator[M_SCH, MODEL]):
@@ -70,9 +69,6 @@ class ModelSchemaGenerator(BaseSchemaGenerator[M_SCH, MODEL]):
             composite_schemas.dispatch(model=self._model, attr=comp).schema()
             for comp in self.mapper.composites.values()
         ]
-
-    # @kw_property
-    # def properties(self) -> list[]:
 
 
 GEN = TypeVar('GEN', bound=ModelSchemaGenerator)

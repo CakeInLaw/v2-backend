@@ -1,4 +1,4 @@
-from typing import Generic, TypeVar, Type, overload
+from typing import Generic, TypeVar, Type, overload, Protocol
 
 from core.db import Model
 from core.db.models import MODEL
@@ -6,8 +6,15 @@ from core.db.models import MODEL
 from ._base import ATTR_GEN
 
 
+__all__ = ["AttrSchemaGeneratorDispatcher"]
+
+
+class HasKey(Protocol):
+    key: str
+
+
 T = TypeVar('T')
-ATTR = TypeVar('ATTR')
+ATTR = TypeVar('ATTR', bound=HasKey)
 
 
 class AttrSchemaGeneratorDispatcher(Generic[ATTR_GEN, T, ATTR]):
@@ -32,7 +39,7 @@ class AttrSchemaGeneratorDispatcher(Generic[ATTR_GEN, T, ATTR]):
 
         return registrator
 
-    def should_reg_by_type(self, type_):
+    def should_reg_by_type(self, type_: T | Type[MODEL]):
         return not issubclass(type_, Model)
 
     def reg_by_type(self, type_, generator: Type[ATTR_GEN]):
@@ -45,16 +52,19 @@ class AttrSchemaGeneratorDispatcher(Generic[ATTR_GEN, T, ATTR]):
         assert comb not in self._reg_map, f'{model}.{name} is already registered'
         self._reg_map[comb] = generator
 
+    def get_attr_name(self, attr: ATTR) -> str:
+        return attr.key
+
     def dispatch(
             self,
-            model: Type[MODEL],
+            owner: Type[MODEL],
             attr: ATTR,
     ) -> ATTR_GEN | None:
-        if self.allow_model_attrs and (comb := (model, attr.key)) in self._reg_map:
+        if self.allow_model_attrs and (comb := (owner, self.get_attr_name(attr))) in self._reg_map:
             generator = self._reg_map[comb]
         else:
-            generator = self._dispatch_by_attr(model=model, attr=attr)
-        return generator(model=model, attr=attr) if generator else None
+            generator = self._dispatch_by_attr(model=owner, attr=attr)
+        return generator(owner=owner, attr=attr) if generator else None
 
     def _dispatch_by_attr(self, model: Type[MODEL], attr: ATTR) -> Type[ATTR_GEN] | None:
         pass

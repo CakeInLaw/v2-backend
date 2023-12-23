@@ -1,12 +1,8 @@
 import asyncio
-import json
 
 from core.db.connection import get_session
 from core.db.models import get_base_metadata
-from core.validators.exceptions import ObjectErrors
-
-
-get_base_metadata(init_first=True)
+from core.schema import create_default_app_schema, get_default_app_schema
 
 
 async def test():
@@ -16,8 +12,8 @@ async def test():
     session = await anext(x)
     repo = EmployeeRepository(session)
     repo.bind_instance(await repo.get('6d967433-0baa-4339-a546-f68559f79a5b'))
-    repo.current_instance.orig_password = 'adasdasd'
-    print(repo.current_instance.__dict__)
+    create_default_app_schema()
+    print(get_default_app_schema().model_dump_json(indent=4))
     # try:
     #     await UserRepository(session=session).create({"username": "tascar44"})
     # except ObjectErrors as e:
@@ -31,4 +27,5 @@ async def test():
     # await session.commit()
 
 
+get_base_metadata(init_first=True)
 asyncio.run(test())

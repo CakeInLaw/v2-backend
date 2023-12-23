@@ -1,8 +1,8 @@
-from typing import TypeVar
+from typing import TypeVar, Any
 
-from sqlalchemy.ext.hybrid import hybrid_property, _HybridGetterType
+from sqlalchemy.ext.hybrid import hybrid_property
 
-T = TypeVar('T')
+_T = TypeVar('_T', bound=Any)
 
 
 def hybrid_property_helper(
@@ -11,8 +11,21 @@ def hybrid_property_helper(
         writeable: bool = True,
         **kwargs
 ):
-    def wrapper(func: _HybridGetterType[T]) -> hybrid_property[T]:
-        prop = hybrid_property(func)
+    """
+    Usage example
+    @hybrid_property_helper(
+        required=True,
+        setter_pattern='^(?=.*[A-Za-z])(?=.*[0-9])[A-Za-z0-9!@#$%^&*-_=+]{8,30}$',
+        setter_min_length=8,
+        setter_max_length=30,
+    )
+    @hybrid_property
+    def password(self) -> str:
+        return getattr(self, '_orig_password', None)
+
+    """
+
+    def wrapper(prop: hybrid_property[_T]) -> hybrid_property[_T]:
         prop.info.update({
             'required': required,
             'readable': readable,

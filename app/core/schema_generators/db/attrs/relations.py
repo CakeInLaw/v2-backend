@@ -11,7 +11,7 @@ from core.schema.attrs import (
     ReverseRelationSchema, REV_REL_SCH, ReverseForeignKeyRelationSchema, ReverseOneToOneRelationSchema
 )
 from ._base import AttrSchemaGenerator
-from ._dispatcher import AttrSchemaGeneratorDispatcher
+from ._dispatcher import AttrSchemaGeneratorDispatcher, T
 from ...gen_property import gen_property
 
 
@@ -52,6 +52,9 @@ REL_GEN = TypeVar('REL_GEN', bound=RelationSchemaGenerator)
 
 
 class RelationSchemaGeneratorDispatcher(AttrSchemaGeneratorDispatcher[REL_GEN, Relations, RelationshipProperty]):
+    def should_reg_by_type(self, type_: Relations | Type[MODEL]):
+        return isinstance(type_, Relations)
+
     def _dispatch_by_attr(self, model: Type[MODEL], attr: RelationshipProperty) -> Type[REL_GEN] | None:
         match attr.direction:
             case RelationshipDirection.ONETOMANY:

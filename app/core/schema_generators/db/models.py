@@ -1,10 +1,11 @@
 from typing import Generic, Type, cast, TypeVar
 
 from sqlalchemy import Table
+from sqlalchemy.ext.hybrid import HybridExtensionType
 
 from core.db.models import (
     MODEL, OBJECT, DIRECTORY, DOCUMENT,
-    Directory, Document
+    Model, Directory, Document, ListModel
 )
 from core.schema.models import (
     M_SCH, ModelSchema,
@@ -12,10 +13,17 @@ from core.schema.models import (
     DIR_SCH, DirectorySchema,
     DOC_SCH, DocumentSchema
 )
+from core.schema.attrs import A_SCH
 from .dispatcher import model_schema_generators
+from .attrs import (
+    column_schema_generators,
+    relation_schema_generators,
+    composite_schema_generators,
+    property_schema_generators,
+    list_schema_generators,
+)
 from ..base import BaseSchemaGenerator
 from ..gen_property import gen_property
-from ...schema.attrs import A_SCH
 
 
 __all__ = [
@@ -35,10 +43,6 @@ class ModelSchemaGenerator(BaseSchemaGenerator[M_SCH], Generic[M_SCH, MODEL]):
         self._table = cast(Table, self._model.__table__)
 
     @gen_property
-    def namespace(self) -> str:
-        return self._model.__namespace__
-
-    @gen_property
     def name(self) -> str:
         return self._model.__table__name__
 
@@ -48,11 +52,31 @@ class ModelSchemaGenerator(BaseSchemaGenerator[M_SCH], Generic[M_SCH, MODEL]):
 
     @gen_property
     def attrs(self) -> list[A_SCH]:
-        pass
+        attributes: list[A_SCH] = []
+        for col in self._mapper.columns:
+            attributes.append(column_schema_generators.dispatch(owner=self._model, attr=col).schema())
+        for rel in self._mapper.relationships.values():
+            if generator := relation_schema_generators.dispatch(owner=self._model, attr=rel):
+                attributes.append(generator.schema())
+        for comp in self._mapper.composites.values():
+            attributes.append(composite_schema_generators.dispatch(owner=self._model, attr=comp).schema())
+        for prop in self._mapper.all_orm_descriptors:  # type: ignore
+            if prop.extension_type == HybridExtensionType.HYBRID_PROPERTY:
+                attributes.append(property_schema_generators.dispatch(owner=self._model, attr=prop).schema())
+        return attributes
 
 
 class ObjectSchemaGenerator(ModelSchemaGenerator[O_SCH, OBJECT]):
     schema_cls = ObjectSchema
+
+    @gen_property
+    def attrs(self) -> list[A_SCH]:
+        attributes: list[A_SCH] = super().attrs()
+        for rel in self._mapper.relationships.values():
+            rel_model = Model.find_by_table(rel.target)
+            if issubclass(rel_model, ListModel):
+                attributes.append(list_schema_generators.dispatch(owner=self._model, attr=rel).schema())
+        return attributes
 
 
 @model_schema_generators.dispatch_for(Directory)

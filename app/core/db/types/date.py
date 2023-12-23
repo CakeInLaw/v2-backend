@@ -6,6 +6,7 @@ from sqlalchemy.orm import mapped_column
 
 from core.constants import EMPTY
 from core.utils import clean_kwargs
+from core.settings import settings
 from ._base import TypeDecorator, ColumnInfo
 
 
@@ -38,7 +39,7 @@ class DateInfo(ColumnInfo):
 def date(
         gte: dt.date = None,
         lte: dt.date = None,
-        fmt: str = '%d.%m.%Y',
+        fmt: str = settings.default_date_fmt,
         default: dt.date | None = EMPTY,
         default_factory: Callable[[], dt.date | None] = EMPTY,
         nullable: bool = EMPTY,

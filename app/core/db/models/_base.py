@@ -13,6 +13,7 @@ class Model(DeclarativeBase):
 
     __SCHEMA__: ClassVar[str]
     available_namespaces = frozenset(('directories', 'documents'))
+    _include_in_schema: bool = True
 
     @declared_attr.directive
     @classmethod
@@ -29,16 +30,16 @@ class Model(DeclarativeBase):
         return cls.__SCHEMA__
 
     @classmethod
-    def find_by_table(cls, table: Table) -> Type["MODEL"]:
-        return cls.find(table.schema, table.name)
+    def find_by_table(cls, table: Table, *, raise_if_none: bool = False) -> Type["MODEL"]:
+        return cls.find(table.schema, table.name, raise_if_none=raise_if_none)
 
     @classmethod
-    def find_by_name(cls, name: str, raise_if_none: bool = False) -> Type["MODEL"]:
+    def find_by_name(cls, name: str, *, raise_if_none: bool = False) -> Type["MODEL"]:
         schema_name, _, table_name = name.partition('.')
         return cls.find(schema_name, table_name, raise_if_none=raise_if_none)
 
     @classmethod
-    def find(cls, schema_name: str, table_name: str, raise_if_none: bool = False) -> Type["MODEL"]:
+    def find(cls, schema_name: str, table_name: str, *, raise_if_none: bool = False) -> Type["MODEL"]:
         assert schema_name in cls.available_namespaces
         model = _models.get((schema_name, table_name))
         if raise_if_none and model is None:
@@ -46,7 +47,7 @@ class Model(DeclarativeBase):
         return model
 
     @classmethod
-    def iter_models(cls, namespace: Literal["directories", "documents"] = None):
+    def iter_models(cls, namespace: Literal["directories", "documents"] | str = None):
         if namespace:
             assert namespace in cls.available_namespaces
             return filter(lambda x: x[0][0] == namespace, _models.items())
@@ -83,7 +84,3 @@ def receive_after_mapper_constructed(_: Mapper, class_: Type[MODEL]):
     table = cast(Table, class_.__table__)
     assert table.schema in Model.available_namespaces, f'"{table.schema}" schema name is not available'
     _models[(table.schema, table.name)] = class_
-
-
-# @event.listens_for(Model, 'after_mapper_constructed', propagate=True)
-# def

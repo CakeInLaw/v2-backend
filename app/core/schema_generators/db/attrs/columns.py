@@ -3,7 +3,7 @@ from typing import Type, TypeVar, cast, Generic, Any
 import sqlalchemy as sa
 
 from core.db.types import (
-    COL_TYPE, COL_INFO,
+    TypeDecorator, COL_TYPE, COL_INFO,
     Boolean, BooleanInfo, Date, DateInfo, DateTime, DateTimeInfo,
     Enum, EnumInfo, Guid, GuidInfo, Integer, SmallInteger, BigInteger, IntegerInfo,
     Numeric, NumericInfo, String, StringInfo, Time, TimeInfo,
@@ -17,7 +17,7 @@ from core.schema.attrs import (
 )
 from ._base import AttrSchemaGenerator
 from ._dispatcher import AttrSchemaGeneratorDispatcher
-from ... import gen_property
+from ...gen_property import gen_property
 
 
 __all__ = [
@@ -76,8 +76,12 @@ COL_GEN = TypeVar('COL_GEN', bound=ColumnSchemaGenerator)
 
 
 class ColumnSchemaGeneratorDispatcher(AttrSchemaGeneratorDispatcher[COL_GEN, Type[COL_TYPE], sa.Column]):
+    def should_reg_by_type(self, type_: Type[COL_TYPE] | Type[MODEL]):
+        return issubclass(type_, TypeDecorator)
+
     def _dispatch_by_attr(self, model: Type[MODEL], attr: sa.Column) -> Type[COL_GEN] | None:
-        return self._reg_map[cast(Type[COL_TYPE], attr.type.__class__)]
+        col_type = cast(Type[COL_TYPE], attr.type.__class__)
+        return self._reg_map[col_type]
 
 
 column_schema_generators = ColumnSchemaGeneratorDispatcher()

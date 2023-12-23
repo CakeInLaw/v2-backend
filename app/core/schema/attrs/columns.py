@@ -1,4 +1,4 @@
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, ClassVar
 
 from pydantic import computed_field
 
@@ -17,7 +17,7 @@ __all__ = [
 
 
 class ColumnSchema(AttrSchema, Generic[C]):
-    _attr_type = Attrs.COLUMN
+    _attr: ClassVar[Attrs] = Attrs.COLUMN
 
     read_only: bool
     hidden: bool

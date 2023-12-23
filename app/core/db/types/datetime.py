@@ -6,6 +6,7 @@ from sqlalchemy.orm import mapped_column
 
 from core.constants import EMPTY
 from core.utils import clean_kwargs
+from core.settings import settings
 from ._base import TypeDecorator, ColumnInfo
 
 
@@ -47,7 +48,7 @@ def datetime(
         timezone: bool = False,
         gte: dt.datetime = None,
         lte: dt.datetime = None,
-        fmt: str = '%d.%m.%Y %H:%M:%S',
+        fmt: str = settings.default_datetime_fmt,
         default: dt.datetime | None = EMPTY,
         default_factory: Callable[[], dt.datetime | None] = EMPTY,
         nullable: bool = EMPTY,

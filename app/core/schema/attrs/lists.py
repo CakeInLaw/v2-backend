@@ -1,8 +1,6 @@
 from typing import ClassVar, TypeVar
 
-from pydantic import InstanceOf
-
-from ._base import AttrSchema
+from ._base import AttrSchema, A_SCH
 from .._types import Attrs
 
 
@@ -10,9 +8,9 @@ __all__ = ["ListSchema", "LIST_SCH"]
 
 
 class ListSchema(AttrSchema):
-    _attr_type: ClassVar[Attrs] = Attrs.LIST
+    _attr: ClassVar[Attrs] = Attrs.LIST
 
-    attrs: list[InstanceOf[AttrSchema]]
+    attrs: list[A_SCH]
 
 
 LIST_SCH = TypeVar('LIST_SCH', bound=ListSchema)

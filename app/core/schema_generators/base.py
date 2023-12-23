@@ -1,13 +1,11 @@
-from typing import Type, Generic, TypeVar
+from typing import Type, Generic
 
-from pydantic import BaseModel
+from core.schema import SCH
 
-from .gen_property import GenProperty
+from .gen_property import gen_property
 
 
 __all__ = ["BaseSchemaGenerator"]
-
-SCH = TypeVar('SCH', bound=BaseModel)
 
 
 class BaseSchemaGenerator(Generic[SCH]):
@@ -21,12 +19,12 @@ class BaseSchemaGenerator(Generic[SCH]):
         properties = {}
         for base_bases in self.__class__.__mro__[::-1]:
             for k, v in base_bases.__dict__.items():
-                if isinstance(v, GenProperty):
+                if isinstance(v, gen_property):
                     properties[v.name] = k
 
         return {key: getattr(self, prop_name) for key, prop_name in properties.items()}
 
-    def schema(self):
+    def schema(self) -> SCH:
         return self.get_schema_cls()(**self.schema_kwargs())
 
     def get_schema_cls(self) -> Type[SCH]:

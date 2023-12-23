@@ -1,19 +1,20 @@
 from typing import ClassVar, TypeVar
 
-from pydantic import InstanceOf, computed_field
+from pydantic import computed_field
 
 from ._base import AttrSchema
-from ._constraints import Constraint
+from ._constraints import C
 from .._types import Attrs, Types
 
 __all__ = ["PropertySchema", "PROP_SCH"]
 
 
 class PropertySchema(AttrSchema):
-    _attr_type: ClassVar[Attrs] = Attrs.PROPERTY
+    _attr: ClassVar[Attrs] = Attrs.PROPERTY
 
-    getter_constraints: InstanceOf[Constraint] | None
-    setter_constraints: InstanceOf[Constraint] | None
+    required: bool
+    getter_constraints: C | None
+    setter_constraints: C | None
 
     @computed_field
     @property

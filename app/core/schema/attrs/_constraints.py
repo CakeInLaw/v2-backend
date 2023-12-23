@@ -4,6 +4,7 @@ from typing import TypeVar, ClassVar
 
 from pydantic import BaseModel
 
+from core.settings import settings
 from .._types import Types
 
 
@@ -33,17 +34,17 @@ class BooleanConstraint(Constraint):
 class DateConstraint(Constraint):
     _type: ClassVar[Types] = Types.DATE
 
-    gte: date | None
-    lte: date | None
-    fmt: str
+    gte: date | None = None
+    lte: date | None = None
+    fmt: str = settings.default_date_fmt
 
 
 class DateTimeConstraint(Constraint):
     _type: ClassVar[Types] = Types.DATETIME
 
-    gte: datetime | None
-    lte: datetime | None
-    fmt: str
+    gte: datetime | None = None
+    lte: datetime | None = None
+    fmt: str = settings.default_datetime_fmt
     with_timezone: bool
 
 
@@ -69,17 +70,17 @@ class NumericConstraint(Constraint):
 
     precision: int
     scale: int
-    gte: Decimal | None
-    gt: Decimal | None
-    lte: Decimal | None
-    lt: Decimal | None
+    gte: Decimal | None = None
+    gt: Decimal | None = None
+    lte: Decimal | None = None
+    lt: Decimal | None = None
 
 
 class StringConstraint(Constraint):
 
-    min_length: int | None
-    max_length: int | None
-    pattern: str | None
+    min_length: int | None = None
+    max_length: int | None = None
+    pattern: str | None = None
 
     @property
     def type(self) -> Types:
@@ -91,6 +92,6 @@ class StringConstraint(Constraint):
 class TimeConstrain(Constraint):
     _type: ClassVar[Types] = Types.TIME
 
-    gte: time | None
-    lte: time | None
-    fmt: str
+    gte: time | None = None
+    lte: time | None = None
+    fmt: str = settings.default_time_fmt

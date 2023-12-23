@@ -13,7 +13,7 @@ __all__ = [
 
 
 class CompositeSchema(AttrSchema):
-    _attr_type: ClassVar[Attrs] = Attrs.COMPOSITE
+    _attr: ClassVar[Attrs] = Attrs.COMPOSITE
     _type: ClassVar[Composites]
 
     attrs: list[str]

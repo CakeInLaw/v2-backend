@@ -14,7 +14,7 @@ __all__ = [
 
 
 class RelationSchema(AttrSchema):
-    _attr_type: ClassVar[Attrs] = Attrs.RELATION
+    _attr: ClassVar[Attrs] = Attrs.RELATION
     _type: ClassVar[Relations]
 
     to_model: str

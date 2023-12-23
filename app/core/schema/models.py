@@ -1,8 +1,8 @@
 from typing import TypeVar
 
-from pydantic import BaseModel, InstanceOf
+from pydantic import BaseModel
 
-from .attrs import AttrSchema
+from .attrs import A_SCH
 
 
 __all__ = [
@@ -12,10 +12,9 @@ __all__ = [
 
 
 class ModelSchema(BaseModel):
-    namespace: str
     name: str
     primary_key: str
-    attrs: list[InstanceOf[AttrSchema]]
+    attrs: list[A_SCH]
 
 
 class ObjectSchema(ModelSchema):

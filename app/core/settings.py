@@ -3,6 +3,7 @@ from typing import ClassVar
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from core.utils import import_string
 from .db import DBConf
 
 
@@ -24,6 +25,15 @@ class Settings(BaseSettings):
         'directories.users',
         'directories.employees',
     ]
+
+    schema_collectors: ClassVar[list[str]] = [
+        'core.schema_collectors.LocalEnumSchemaCollector',
+        'core.schema_collectors.DBDirectorySchemaCollector',
+        'core.schema_collectors.DBDocumentSchemaCollector',
+    ]
+    default_date_fmt: ClassVar[str] = '{dd}.{mm}.{YYYY}'
+    default_datetime_fmt: ClassVar[str] = '{HH}:{MM}:{SS} {dd}.{mm}.{YYYY}'
+    default_time_fmt: ClassVar[str] = '{HH}:{MM}:{SS}'
 
 
 settings = Settings(_env_file='.env')

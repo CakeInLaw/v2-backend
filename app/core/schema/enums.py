@@ -1,4 +1,4 @@
-from typing import Type
+from typing import Type, TypeVar
 from enum import IntEnum, StrEnum
 
 from pydantic import BaseModel
@@ -6,10 +6,10 @@ from pydantic import BaseModel
 from ._types import EnumSubTypes
 
 
-__all__ = ["EnumDescription", "collect_enums"]
+__all__ = ["EnumSchema", "ENUM_SCH"]
 
 
-class EnumDescription(BaseModel):
+class EnumSchema(BaseModel):
     name: str
     type: EnumSubTypes
     values: dict[str, int] | dict[str, str]
@@ -23,10 +23,4 @@ class EnumDescription(BaseModel):
         )
 
 
-def collect_enums():
-    import enums
-    return [
-        EnumDescription.from_type(v)
-        for k, v in enums.__dict__.items()
-        if isinstance(v, type) and issubclass(v, (IntEnum, StrEnum)) and v.__members__
-    ]
+ENUM_SCH = TypeVar('ENUM_SCH', bound=EnumSchema)

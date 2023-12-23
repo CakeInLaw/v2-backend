@@ -2,7 +2,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped
 
 from core.db.models import Directory
-from core.db.hybrid_properties import hybrid_property_helper
+from core.db.hybrid import hybrid_property_helper
 from core.db import types
 from enums import UserRoles
 
@@ -17,11 +17,13 @@ class User(Directory):
 
     @hybrid_property_helper(
         required=True,
+        readable=False,
         # обязательны 1 буква и цифра; допустимы буквы (латиница), цифры и !@#$%^&*-_=+
         setter_pattern='^(?=.*[A-Za-z])(?=.*[0-9])[A-Za-z0-9!@#$%^&*-_=+]{8,30}$',
         setter_min_length=8,
         setter_max_length=30,
     )
+    @hybrid_property
     def password(self) -> str:
         return getattr(self, '_orig_password', None)
 
