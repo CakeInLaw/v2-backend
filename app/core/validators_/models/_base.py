@@ -7,7 +7,7 @@ from .relations import get_relation_validator, REL_VAL
 from .composites import get_composite_validator, COMP_VAL
 
 if TYPE_CHECKING:
-    from core.repositories import M_REP
+    from core.repositories import O_REP
 
 __all__ = ["ModelValidator", "M_VAL"]
 
@@ -35,11 +35,11 @@ class ModelValidatorMeta(type):
         new_cls.available_attrs = {}
         new_cls.required_attrs = set()
         for col_name, col_validator in columns.items():
-            col_validator.modify_model_validator()
+            col_validator.modify_parent()
         for rel_validator in relations.values():
-            rel_validator.modify_model_validator()
+            rel_validator.modify_parent()
         for comp_validator in composites.values():
-            comp_validator.modify_model_validator()
+            comp_validator.modify_parent()
 
         return new_cls
 
@@ -54,7 +54,7 @@ class ModelValidator(Generic[M_SCH], metaclass=ModelValidatorMeta):
     available_attrs: dict[str, A_VAL]
     required_attrs: set[str]
 
-    def __init__(self, repository: "M_REP"):
+    def __init__(self, repository: "O_REP"):
         self.repository = repository
 
     @classmethod

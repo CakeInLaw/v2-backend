@@ -7,7 +7,7 @@ from ._base import RelationValidator
 from ...exceptions import NotUnique
 
 if TYPE_CHECKING:
-    from core.repositories import M_REP
+    from core.repositories import O_REP
     from ..columns import COL_VAL
 
 __all__ = ["ForwardRelationValidator"]
@@ -19,12 +19,12 @@ class ForwardRelationValidator(RelationValidator[ForwardRelationSchema, MODEL]):
         super()._post_init()
         self.local_attr_validator: "COL_VAL" = self.model_validator.get_column(self.schema.local_key)
 
-    async def validate(self, value: MODEL, repository: "M_REP") -> None:
+    async def validate(self, value: MODEL, repository: "O_REP") -> None:
         if self.schema.type == RelationTypes.O2O:
             if not await repository.check_unique(attr_name=self.schema.name, value=value):
                 raise NotUnique
 
-    async def transform(self, value: Any, repository: "M_REP") -> MODEL:
+    async def transform(self, value: Any, repository: "O_REP") -> MODEL:
         if isinstance(value, self._to_model):
             return value
         value = await self.local_attr_validator.transform(value=value, repository=repository)

@@ -7,7 +7,7 @@ from .._attrs import AttrValidator
 from ...exceptions import NonNullable, NotUnique
 
 if TYPE_CHECKING:
-    from core.repositories import M_REP
+    from core.repositories import O_REP
 
 __all__ = ["ColumnValidator", "COL_VAL"]
 
@@ -28,7 +28,7 @@ class ColumnValidator(AttrValidator[C_SCH, T]):
         pass
 
     @final
-    async def validate(self, value: T, repository: "M_REP") -> None:
+    async def validate(self, value: T, repository: "O_REP") -> None:
         if value is None:
             if not self.schema.nullable:
                 raise NonNullable
@@ -43,7 +43,7 @@ class ColumnValidator(AttrValidator[C_SCH, T]):
         return value
 
     @final
-    async def transform(self, value: Any, repository: "M_REP") -> T:
+    async def transform(self, value: Any, repository: "O_REP") -> T:
         """
         Brings the value to the desired type before validation.
         Don`t override this method. Override "_transform" to specify all transform cases.
@@ -72,7 +72,7 @@ class ColumnValidator(AttrValidator[C_SCH, T]):
         pks = self.model_validator.schema.primary_keys
         return self.schema.unique or (len(pks) == 1 and pks[0] == self.schema.name)
 
-    async def _validate_unique(self, value: Any, repository: "M_REP"):
+    async def _validate_unique(self, value: Any, repository: "O_REP"):
         if not await repository.check_unique(self.schema.name, value=value):
             raise NotUnique
 
@@ -114,7 +114,7 @@ class ColumnValidatorFunc(Generic[T]):
             return kwargs
         return {k: v for k, v in kwargs.items() if k in self.args}
 
-    async def __call__(self, value: T, repository: "M_REP"):
+    async def __call__(self, value: T, repository: "O_REP"):
         kwargs = self.filter_kwargs(value=value, repository=repository)
         if self.coro:
             await self.func(**kwargs)

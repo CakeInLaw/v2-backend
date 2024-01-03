@@ -31,6 +31,22 @@ class Relations(enum.StrEnum):
     FK = 'fk'
     REV_FK = 'reverse_fk'
 
+    @classmethod
+    def forward(cls):
+        return cls.O2O, cls.FK
+
+    @property
+    def is_forward(self) -> bool:
+        return self in self.forward()
+
+    @classmethod
+    def reverse(cls):
+        return cls.REV_O2O, cls.REV_FK
+
+    @property
+    def is_reverse(self) -> bool:
+        return self in self.reverse()
+
 
 class Composites(enum.StrEnum):
     ONE_OF = 'one_of'

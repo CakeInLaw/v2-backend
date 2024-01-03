@@ -5,13 +5,13 @@ from ._base import CompositeValidator
 from ...exceptions import ValidationError, NonNullable
 
 if TYPE_CHECKING:
-    from core.repositories import M_REP
+    from core.repositories import O_REP
 
 __all__ = ["OneOfValidator"]
 
 
 class OneOfValidator(CompositeValidator[OneOfCompositeSchema, tuple[str, Any]]):
-    async def validate(self, value: tuple[str, Any], repository: "M_REP"):
+    async def validate(self, value: tuple[str, Any], repository: "O_REP"):
         if value is None:
             if not self.schema.nullable:
                 raise NonNullable
@@ -22,7 +22,7 @@ class OneOfValidator(CompositeValidator[OneOfCompositeSchema, tuple[str, Any]]):
         except ValidationError as e:
             raise e(col_name=attr)
 
-    async def transform(self, value: tuple[str, Any], repository: "M_REP") -> tuple[str, Any] | None:
+    async def transform(self, value: tuple[str, Any], repository: "O_REP") -> tuple[str, Any] | None:
         if value is None:
             return
         else:

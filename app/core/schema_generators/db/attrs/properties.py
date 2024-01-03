@@ -1,6 +1,8 @@
 import uuid
 import enum
-from typing import TypeVar, Type
+import types
+from inspect import getfullargspec
+from typing import TypeVar, Type, get_origin, get_args
 from decimal import Decimal
 from datetime import date, time, datetime
 
@@ -61,14 +63,24 @@ class PropertySchemaGenerator(AttrSchemaGenerator[PROP_SCH, QueryableAttribute])
         return self._prop.info['required']
 
     @gen_property
+    def nullable(self) -> bool | None:
+        if self._prop.info['writeable'] and self._prop.fset:
+            value_type = getfullargspec(self._prop.fset).annotations['value']
+            return get_origin(value_type) is types.UnionType and types.NoneType in get_args(value_type)
+
+    @gen_property
     def getter_constraints(self) -> constr.C | None:
-        if self._prop.info['readable']:
-            return self._prop_constraints(self._prop.fget.__annotations__['return'], **self._prop.info['getter'])
+        if self._prop.info['readable'] and self._prop.fget:
+            fget_annotations = getfullargspec(self._prop.fget).annotations
+            assert 'return' in fget_annotations, f'{self.owner.name}.{self.name} hasn`t "return" annotation'
+            return self._prop_constraints(fget_annotations['return'], **self._prop.info['getter'])
 
     @gen_property
     def setter_constraints(self) -> constr.C | None:
         if self._prop.info['writeable'] and self._prop.fset:
-            return self._prop_constraints(self._prop.fset.__annotations__['value'], **self._prop.info['setter'])
+            fset_annotations = getfullargspec(self._prop.fset).annotations
+            assert 'value' in fset_annotations, f'{self.owner.name}.{self.name} hasn`t "value" annotation'
+            return self._prop_constraints(fset_annotations['value'], **self._prop.info['setter'])
 
 
 PROP_GEN = TypeVar('PROP_GEN', bound=PropertySchemaGenerator)

@@ -13,6 +13,7 @@ class PropertySchema(AttrSchema):
     _attr: ClassVar[Attrs] = Attrs.PROPERTY
 
     required: bool
+    nullable: bool | None
     getter_constraints: C | None
     setter_constraints: C | None
 

@@ -3,7 +3,7 @@ from typing import Generic, Type, TYPE_CHECKING, TypeVar, Any
 from core.schema import A_SCH
 
 if TYPE_CHECKING:
-    from core.repositories import M_REP
+    from core.repositories import O_REP
     from ..models import M_VAL
 
 
@@ -22,10 +22,10 @@ class AttrValidator(Generic[A_SCH, T]):
     def _post_init(self):
         pass
 
-    async def validate(self, value: T, repository: "M_REP") -> None:
+    async def validate(self, value: T, repository: "O_REP") -> None:
         raise NotImplementedError()
 
-    async def transform(self, value: Any, repository: "M_REP") -> T:
+    async def transform(self, value: Any, repository: "O_REP") -> T:
         raise NotImplementedError()
 
     def modify_model_validator(self):

@@ -6,6 +6,8 @@ __all__ = [
     "RequiredAttr",
     "NonNullable",
     "NotUnique",
+    "NotFound",
+    "IncorrectFormat",
 ]
 
 
@@ -30,3 +32,5 @@ UnexpectedAttr = ValidationError('unexpected_attr')
 RequiredAttr = ValidationError('required_attr')
 NonNullable = ValidationError('non_nullable')
 NotUnique = ValidationError('non_unique')
+NotFound = ValidationError('not_found')
+IncorrectFormat = ValidationError('incorrect_format')

@@ -1,15 +1,18 @@
+import enum
+import uuid
 from datetime import date, datetime, time
 from decimal import Decimal
-from typing import TypeVar, ClassVar
+from typing import TypeVar, ClassVar, Type
 
 from pydantic import BaseModel
 
+from core import utils
 from core.settings import settings
 from .._types import Types
 
 
 __all__ = [
-    "Constraint", "C",
+    "Constraint", "C", "ENUM",
     "BooleanConstraint", "DateConstraint", "DateTimeConstraint",
     "EnumConstraint", "GuidConstraint", "IntegerConstraint",
     "NumericConstraint", "StringConstraint", "TimeConstraint"
@@ -17,7 +20,12 @@ __all__ = [
 
 
 class Constraint(BaseModel):
+    _python_type: ClassVar[type]
     _type: ClassVar[Types]
+
+    @property
+    def python_type(self) -> type:
+        return self._python_type
 
     @property
     def type(self) -> Types:
@@ -28,10 +36,12 @@ C = TypeVar('C', bound=Constraint)
 
 
 class BooleanConstraint(Constraint):
+    _python_type: ClassVar = bool
     _type: ClassVar[Types] = Types.BOOLEAN
 
 
 class DateConstraint(Constraint):
+    _python_type: ClassVar = date
     _type: ClassVar[Types] = Types.DATE
 
     gte: date | None = None
@@ -40,6 +50,7 @@ class DateConstraint(Constraint):
 
 
 class DateTimeConstraint(Constraint):
+    _python_type: ClassVar = datetime
     _type: ClassVar[Types] = Types.DATETIME
 
     gte: datetime | None = None
@@ -48,17 +59,40 @@ class DateTimeConstraint(Constraint):
     with_timezone: bool
 
 
+ENUM = TypeVar('ENUM', enum.IntEnum, enum.StrEnum)
+
+
 class EnumConstraint(Constraint):
     _type: ClassVar[Types] = Types.ENUM
 
     enum_type_name: str
 
+    @property
+    def python_type(self) -> Type[ENUM]:
+        if not hasattr(self, "_python_type_cached"):
+            setattr(self, "_python_type_cached", utils.import_string(f'enums.{self.enum_type_name}'))
+        return getattr(self, "_python_type_cached")
+
+    @property
+    def is_int_enum(self) -> bool:
+        if not hasattr(self, "_is_int_enum_cached"):
+            setattr(self, "_is_int_enum_cached", issubclass(self.python_type, enum.IntEnum))
+        return hasattr(self, "_is_int_enum_cached")
+
+    @property
+    def is_str_enum(self) -> bool:
+        if not hasattr(self, "_is_str_enum_cached"):
+            setattr(self, "_is_str_enum_cached", issubclass(self.python_type, enum.StrEnum))
+        return hasattr(self, "_is_str_enum_cached")
+
 
 class GuidConstraint(Constraint):
+    _python_type: ClassVar = uuid.UUID
     _type: ClassVar[Types] = Types.GUID
 
 
 class IntegerConstraint(Constraint):
+    _python_type: ClassVar = int
     _type: ClassVar[Types] = Types.INTEGER
 
     gte: int
@@ -66,6 +100,7 @@ class IntegerConstraint(Constraint):
 
 
 class NumericConstraint(Constraint):
+    _python_type: ClassVar = Decimal
     _type: ClassVar[Types] = Types.NUMERIC
 
     precision: int
@@ -77,6 +112,7 @@ class NumericConstraint(Constraint):
 
 
 class StringConstraint(Constraint):
+    _python_type: ClassVar = str
 
     min_length: int | None = None
     max_length: int | None = None
@@ -90,6 +126,7 @@ class StringConstraint(Constraint):
 
 
 class TimeConstraint(Constraint):
+    _python_type: ClassVar = time
     _type: ClassVar[Types] = Types.TIME
 
     gte: time | None = None

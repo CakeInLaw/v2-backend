@@ -18,21 +18,21 @@ class ModelSchema(BaseModel):
     attrs: list[A_SCH]
 
     def get_columns(self) -> list[COL_SCH]:
-        return list(filter(lambda a: a.type == Attrs.COLUMN, self.attrs))
+        return list(filter(lambda a: a.attr == Attrs.COLUMN, self.attrs))
 
     def get_relations(self) -> list[REL_SCH]:
-        return list(filter(lambda a: a.type == Attrs.RELATION, self.attrs))
+        return list(filter(lambda a: a.attr == Attrs.RELATION, self.attrs))
 
     def get_composites(self) -> list[COMP_SCH]:
-        return list(filter(lambda a: a.type == Attrs.COMPOSITE, self.attrs))
+        return list(filter(lambda a: a.attr == Attrs.COMPOSITE, self.attrs))
 
     def get_properties(self) -> list[PROP_SCH]:
-        return list(filter(lambda a: a.type == Attrs.PROPERTY, self.attrs))
+        return list(filter(lambda a: a.attr == Attrs.PROPERTY, self.attrs))
 
 
 class ObjectSchema(ModelSchema):
     def get_lists(self) -> list[LIST_SCH]:
-        return list(filter(lambda a: a.type == Attrs.LIST, self.attrs))
+        return list(filter(lambda a: a.attr == Attrs.LIST, self.attrs))
 
 
 class DirectorySchema(ObjectSchema):
