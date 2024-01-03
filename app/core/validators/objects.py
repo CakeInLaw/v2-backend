@@ -42,8 +42,7 @@ class ObjectValidator(ModelValidator[O_SCH], metaclass=ObjectValidatorMeta):
             raise Exception(f'{cls} is already bound')
         return type(f'{schema.name}{cls.__name__}', (cls, ), {'schema': schema})  # type: ignore
 
-    async def validate(self, data: dict[str, Any], repository: "O_REP") -> dict[str, Any]:
-        pass
+    async def validate(self, data: dict[str, Any], repository: "O_REP") -> dict[str, Any]:  ... # TODO
 
 
 O_VAL = TypeVar('O_VAL', bound=ObjectValidator)

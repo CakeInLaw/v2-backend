@@ -21,7 +21,9 @@ class ListValidator(ModelValidator[ListSchema]):
             raise Exception(f'{cls} is already bound')
         return type(f'{schema.name}{cls.__name__}', (cls, ), {'schema': schema})  # type: ignore
 
+    def validate_list(self): ...  # TODO
 
+    def validate_row(self): ...  # TODO
 
 
 LIST_VAL = TypeVar('LIST_VAL', bound=ListValidator)
