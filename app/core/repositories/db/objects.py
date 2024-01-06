@@ -1,13 +1,19 @@
 from typing import Any, Type
 
+from sqlalchemy import select
+
+from core.types import PK
 from core.db import OBJECT, DIRECTORY, DOCUMENT
+from core.db.connection import AsyncSession
 from core.schema import O_SCH, DIR_SCH, DOC_SCH, get_default_app_schema
 from core.validators import ObjectValidator, O_VAL, DirectoryValidator, DIR_VAL, DocumentValidator, DOC_VAL
-from .._base import AbstractObjectRepository, O_REP
 from .lists import SaListRepository
+from .._base import AbstractObjectRepository, O_REP
+from ..exceptions import ObjectNotFoundError
 
 
 __all__ = ["SaObjectRepository", "SaDirectoryRepository", "SaDocumentRepository"]
+
 
 
 class SaObjectRepository(AbstractObjectRepository[OBJECT, O_SCH, O_VAL]):
@@ -16,7 +22,7 @@ class SaObjectRepository(AbstractObjectRepository[OBJECT, O_SCH, O_VAL]):
 
     def __init__(self, context: dict[str, Any]):
         super().__init__(context=context)
-        self.session = self.context['session']
+        self.session: AsyncSession = self.context['session']
 
     @classmethod
     def _get_list_model(cls, name: str) -> Any:
@@ -29,7 +35,18 @@ class SaObjectRepository(AbstractObjectRepository[OBJECT, O_SCH, O_VAL]):
     @classmethod
     def _find_schema(cls) -> O_SCH: ...
 
-    async def get(self):
+    def get_pk_attr(self):
+        return getattr(self.model, self.schema.primary_key)
+
+    async def get(self, **kwargs): ...
+
+    async def get_many(self, pks: list[PK], **kwargs) -> dict[PK, OBJECT]:
+
+    async def get_one(self, pk: PK, raise_if_none: bool = True, **kwargs) -> OBJECT | None:
+        result = await self.session.scalar(select(self.model).where(self.get_pk_attr() == pk))
+        if result is None and raise_if_none:
+            raise ObjectNotFoundError
+        return result
 
 
 class SaDirectoryRepository(SaObjectRepository[DIRECTORY, DIR_SCH, DIR_VAL]):

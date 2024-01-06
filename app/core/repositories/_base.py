@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Type, Any, Generic, TypeVar, Self, cast
 
+from core.types import PK
 from core.schema import O_SCH, LIST_SCH
 from core.validators import O_VAL, LIST_VAL
 from .registry import get_repository, DEFAULT_REPOSITORY_KEY
@@ -10,7 +11,6 @@ __all__ = [
     "AbstractObjectRepository", "O_REP",
     "AbstractListRepository", "LIST_REP"
 ]
-
 
 ANY_MODEL = TypeVar('ANY_MODEL', bound=Any)
 ANY_LIST = TypeVar('ANY_LIST', bound=Any)
@@ -116,18 +116,14 @@ class AbstractObjectRepository(ABC, Generic[ANY_MODEL, O_SCH, O_VAL], AbstractRe
     @abstractmethod
     def bind_schema_automatically(cls: Type["O_REP"]) -> Type["O_REP"]: ...
 
-    @classmethod
-    @abstractmethod
-    def get_identifier(cls, obj: ANY_MODEL): ...
-
     @abstractmethod
     async def get(self, **kwargs) -> list[ANY_MODEL]: ...
 
     @abstractmethod
-    async def get_one(self, pk: Any, **kwargs) -> ANY_MODEL | None: ...
+    async def get_many(self, pks: list[PK], **kwargs) -> dict[PK, ANY_MODEL]: ...
 
     @abstractmethod
-    async def get_many(self, pks: list, **kwargs) -> dict[Any, ANY_MODEL]: ...
+    async def get_one(self, pk: PK, raise_if_none: bool = True, **kwargs) -> ANY_MODEL | None: ...
 
     @abstractmethod
     async def create(self, data: dict[str, Any], **kwargs) -> ANY_MODEL: ...

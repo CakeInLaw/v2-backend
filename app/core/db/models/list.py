@@ -1,9 +1,9 @@
 from typing import Type, ClassVar, TypeVar, Generic
-from uuid import UUID
 
 from sqlalchemy import inspect
 from sqlalchemy.orm import Mapped, declared_attr, relationship
 
+from core.types import PK
 from ._base import Model
 from ._object import OBJECT
 from ..relations import foreign_key
@@ -11,8 +11,6 @@ from ..types import integer
 
 
 __all__ = ["ListModel", "LIST_MODEL"]
-
-PK = TypeVar('PK', int, str, UUID)
 
 
 class ListModel(Model, Generic[OBJECT, PK]):
