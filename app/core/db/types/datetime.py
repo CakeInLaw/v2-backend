@@ -4,6 +4,7 @@ from typing import Callable
 import sqlalchemy as sa
 from sqlalchemy.orm import mapped_column
 
+from core.type_transformers import transform_datetime
 from core.constants import EMPTY
 from core.utils import clean_kwargs
 from core.settings import settings
@@ -39,6 +40,9 @@ class DateTime(TypeDecorator[dt.datetime]):
     def timezone(self) -> bool:
         return self.impl.timezone
 
+    def process_result_value(self, value: str | dt.datetime | None, dialect) -> dt.datetime | None:
+        return transform_datetime(value, with_timezone=self.timezone)
+
 
 class DateTimeInfo(ColumnInfo):
     fmt: str
@@ -55,6 +59,7 @@ def datetime(
         unique: bool = EMPTY,
         read_only: bool = False,
         hidden: bool = False,
+        filter_enable: bool = True,
         server_default: str | sa.TextClause = None,
         auto_now_add: bool = False
 ):
@@ -64,7 +69,7 @@ def datetime(
         nullable=nullable,
         unique=unique,
     )
-    info = DateTimeInfo(read_only=read_only, hidden=hidden, fmt=fmt)
+    info = DateTimeInfo(read_only=read_only, hidden=hidden, filter_enable=filter_enable, fmt=fmt)
     if auto_now_add:
         server_default = sa.func.now()
     return mapped_column(

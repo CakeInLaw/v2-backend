@@ -29,6 +29,7 @@ class TypeDecorator(sa.TypeDecorator[T]):
 class ColumnInfo(TypedDict):
     read_only: bool
     hidden: bool
+    filter_enable: bool
 
 
 COL_TYPE = TypeVar('COL_TYPE', bound=TypeDecorator)

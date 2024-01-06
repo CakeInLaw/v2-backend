@@ -1,4 +1,4 @@
-from typing import TypeVar, ClassVar
+from typing import TypeVar, ClassVar, TYPE_CHECKING
 
 from pydantic import BaseModel, computed_field
 

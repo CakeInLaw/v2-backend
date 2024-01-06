@@ -7,7 +7,7 @@ from ._base import BaseSchemaCollector
 
 __all__ = [
     "DirectorySchemaCollector", "DocumentSchemaCollector",
-    "DBDirectorySchemaCollector", "DBDocumentSchemaCollector",
+    "SaDirectorySchemaCollector", "SaDocumentSchemaCollector",
 ]
 
 
@@ -34,9 +34,9 @@ class ObjectSchemaCollectorMixin(Generic[O_SCH]):
                 yield model_schema_generators.dispatch(model).schema()
 
 
-class DBDirectorySchemaCollector(ObjectSchemaCollectorMixin[DIR_SCH], DirectorySchemaCollector[DIR_SCH]):
+class SaDirectorySchemaCollector(ObjectSchemaCollectorMixin[DIR_SCH], DirectorySchemaCollector[DIR_SCH]):
     namespace = 'directories'
 
 
-class DBDocumentSchemaCollector(ObjectSchemaCollectorMixin[DOC_SCH], DocumentSchemaCollector[DOC_SCH]):
+class SaDocumentSchemaCollector(ObjectSchemaCollectorMixin[DOC_SCH], DocumentSchemaCollector[DOC_SCH]):
     namespace = 'documents'

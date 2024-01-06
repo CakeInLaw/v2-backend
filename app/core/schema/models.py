@@ -1,4 +1,4 @@
-from typing import TypeVar
+from typing import TypeVar, ClassVar
 
 from pydantic import BaseModel
 
@@ -13,9 +13,15 @@ __all__ = [
 
 
 class ModelSchema(BaseModel):
+    namespace: ClassVar[str]
     name: str
     primary_key: str
     attrs: list[A_SCH]
+
+    def get_attr(self, name: str) -> A_SCH | None:
+        for attr in self.attrs:
+            if attr.name == name:
+                return attr
 
     def get_columns(self) -> list[COL_SCH]:
         return list(filter(lambda a: a.attr == Attrs.COLUMN, self.attrs))
@@ -29,6 +35,10 @@ class ModelSchema(BaseModel):
     def get_properties(self) -> list[PROP_SCH]:
         return list(filter(lambda a: a.attr == Attrs.PROPERTY, self.attrs))
 
+    @property
+    def full_name(self) -> str:
+        return f'{self.namespace}.{self.name}'
+
 
 class ObjectSchema(ModelSchema):
     def get_lists(self) -> list[LIST_SCH]:
@@ -36,10 +46,11 @@ class ObjectSchema(ModelSchema):
 
 
 class DirectorySchema(ObjectSchema):
-    pass
+    namespace: ClassVar[str] = 'directories'
 
 
 class DocumentSchema(ObjectSchema):
+    namespace: ClassVar[str] = 'documents'
     prefix: str
 
 

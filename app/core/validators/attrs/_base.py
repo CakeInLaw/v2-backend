@@ -6,14 +6,14 @@ from ..exceptions import ValidationError, NonNullable, ListErrors
 
 if TYPE_CHECKING:
     from core.repositories import O_REP, LIST_REP
-    from ..models import M_VAL
-    from .lists import LIST_VAL
+    from ..objects import O_VAL
+    from ..lists import LIST_VAL
 
 
 __all__ = ["AttrValidator", "A_VAL", "AttrValidatorParent", "ParentRepository"]
 
 T = TypeVar('T', bound=Any)
-AttrValidatorParent = Type["M_VAL"] | Type["LIST_VAL"]
+AttrValidatorParent = Type["O_VAL"] | Type["LIST_VAL"]
 ParentRepository = Union["M_REP", "LIST_REP"]
 
 
@@ -30,15 +30,17 @@ class AttrValidator(Generic[A_SCH, T]):
     async def validate(self, value: Any, repository: ParentRepository) -> T:
         raise NotImplementedError()
 
-    async def validate_list(self, list_of_values: list, repository: ParentRepository) -> list[T]:  # TODO
+    async def validate_list(self, list_of_values: list, repository: ParentRepository) -> list[T]:
         errors = ListErrors()
+        valid_list = []
         for idx, value in enumerate(list_of_values):
             try:
-                await self.validate(value=value, repository=repository)
+                valid_list.append(await self.validate(value=value, repository=repository))
             except ValidationError as err:
                 errors.add(idx=idx, err=err)
         if errors:
             raise errors
+        return valid_list
 
     def modify_parent(self):
         pass

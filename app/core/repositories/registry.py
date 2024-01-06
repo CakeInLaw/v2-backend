@@ -13,8 +13,10 @@ DEFAULT_REPOSITORY_KEY = 'default'
 
 def register(variant: str = DEFAULT_REPOSITORY_KEY):
     def wrapper(repository: Type["O_REP"]) -> Type["O_REP"]:
-        comb = (repository.schema.name, variant)
-        assert comb not in _repositories
+        if not repository.is_schema_bound():
+            repository = repository.bind_schema_automatically()
+        comb = (repository.schema.full_name, variant)
+        assert comb not in _repositories, f'Duplicate repository "{comb}"'
         _repositories[comb] = repository
         return repository
     return wrapper

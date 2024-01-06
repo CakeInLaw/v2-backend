@@ -21,7 +21,7 @@ class ForwardRelationValidator(RelationValidator[FWD_REL_SCH]):
         value = self.local_attr.validate(value=value, repository=repository)
         if value is None:
             return
-        value = await repository.related(self.schema.name).get_one(value)
+        value = await repository.related_repository(self.schema.name).get_one(value)
         if value is None:
             raise NotFound
         return value

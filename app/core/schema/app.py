@@ -35,6 +35,34 @@ class AppSchema(BaseModel):
         assert not list(filter(lambda sch: sch.name == schema.name, self.documents))
         self.documents.append(schema)
 
+    def get_reference(self, reference: str):
+        t, _, name = reference.partition('.')
+        match t:
+            case 'enum':
+                return self.get_enum(name)
+            case 'directory':
+                return self.get_directory(name)
+            case 'document':
+                return self.get_document(name)
+
+    def get_enum(self, name: str) -> ENUM_SCH:
+        for e in self.enums:
+            if e.name == name:
+                return e
+        raise ValueError(f'Enum with name "{name}" does not exist')
+
+    def get_directory(self, name: str) -> DIR_SCH:
+        for d in self.directories:
+            if d.name == name:
+                return d
+        raise ValueError(f'Directory with name "{name}" does not exist')
+
+    def get_document(self, name: str) -> DOC_SCH:
+        for d in self.documents:
+            if d.name == name:
+                return d
+        raise ValueError(f'Document with name "{name}" does not exist')
+
 
 _default_app_schema = None
 

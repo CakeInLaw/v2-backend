@@ -6,13 +6,13 @@ from typing import TypeVar, ClassVar, Type
 
 from pydantic import BaseModel
 
-from core import utils
+from core import utils, types
 from core.settings import settings
 from .._types import Types
 
 
 __all__ = [
-    "Constraint", "C", "ENUM",
+    "Constraint", "C",
     "BooleanConstraint", "DateConstraint", "DateTimeConstraint",
     "EnumConstraint", "GuidConstraint", "IntegerConstraint",
     "NumericConstraint", "StringConstraint", "TimeConstraint"
@@ -59,16 +59,13 @@ class DateTimeConstraint(Constraint):
     with_timezone: bool
 
 
-ENUM = TypeVar('ENUM', enum.IntEnum, enum.StrEnum)
-
-
 class EnumConstraint(Constraint):
     _type: ClassVar[Types] = Types.ENUM
 
     enum_type_name: str
 
     @property
-    def python_type(self) -> Type[ENUM]:
+    def python_type(self) -> Type[types.ENUM]:
         if not hasattr(self, "_python_type_cached"):
             setattr(self, "_python_type_cached", utils.import_string(f'enums.{self.enum_type_name}'))
         return getattr(self, "_python_type_cached")

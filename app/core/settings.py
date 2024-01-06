@@ -28,8 +28,8 @@ class Settings(BaseSettings):
 
     schema_collectors: ClassVar[list[str]] = [
         'core.schema_collectors.LocalEnumSchemaCollector',
-        'core.schema_collectors.DBDirectorySchemaCollector',
-        'core.schema_collectors.DBDocumentSchemaCollector',
+        'core.schema_collectors.SaDirectorySchemaCollector',
+        'core.schema_collectors.SaDocumentSchemaCollector',
     ]
     default_date_fmt: ClassVar[str] = '{dd}.{mm}.{YYYY}'
     default_datetime_fmt: ClassVar[str] = '{HH}:{MM}:{SS} {dd}.{mm}.{YYYY}'

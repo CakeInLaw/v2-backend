@@ -3,12 +3,14 @@ from typing import Callable, Literal
 import sqlalchemy as sa
 from sqlalchemy.orm import mapped_column
 
+from core.type_transformers import transform_integer
 from core.constants import EMPTY
 from core.utils import clean_kwargs
 from ._base import TypeDecorator, ColumnInfo
 
 
 __all__ = ["Integer", "SmallInteger", "BigInteger", "IntegerInfo", "integer"]
+
 
 
 class Integer(TypeDecorator[int]):
@@ -44,6 +46,9 @@ class Integer(TypeDecorator[int]):
     def lte(self) -> int:
         return self._max_max_value if self._lte is None else self._lte
 
+    def process_result_value(self, value: int | str | None, dialect) -> bool | None:
+        return transform_integer(value)
+
 
 class SmallInteger(Integer):
     impl = sa.SmallInteger()
@@ -78,6 +83,7 @@ def integer(
         primary_key: bool = False,
         read_only: bool = EMPTY,
         hidden: bool = False,
+        filter_enable: bool = True,
         server_default: str | sa.TextClause = None,
 ):
     cleaned_kwargs = clean_kwargs(
@@ -89,7 +95,7 @@ def integer(
     if primary_key and autoincrement in (True, 'auto'):
         read_only = True if read_only is EMPTY else read_only
     read_only = False if read_only is EMPTY else read_only
-    info = IntegerInfo(read_only=read_only, hidden=hidden)
+    info = IntegerInfo(read_only=read_only, hidden=hidden, filter_enable=filter_enable)
 
     gte = 0 if non_negative else 1 if positive else gte
     lte = 0 if non_positive else -1 if negative else lte

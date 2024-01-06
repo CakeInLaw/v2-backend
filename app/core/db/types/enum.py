@@ -1,9 +1,11 @@
 from enum import IntEnum, StrEnum
-from typing import Type, TypeVar, Callable, Optional
+from typing import Type, Callable, Optional
 
 import sqlalchemy as sa
 from sqlalchemy.orm import mapped_column
 
+from core.type_transformers import transform_enum
+from core.types import ENUM
 from core.constants import EMPTY
 from core.utils import clean_kwargs
 from ._base import TypeDecorator, ColumnInfo
@@ -11,15 +13,13 @@ from ._base import TypeDecorator, ColumnInfo
 
 __all__ = ["Enum", "EnumInfo", "enum"]
 
-ENUM_TYPE = TypeVar('ENUM_TYPE', IntEnum, StrEnum)
 
-
-class Enum(TypeDecorator[ENUM_TYPE]):
+class Enum(TypeDecorator[ENUM]):
     cache_ok = True
 
-    enum_type: Type[ENUM_TYPE]
+    enum_type: Type[ENUM]
 
-    def __init__(self, enum_type: Type[ENUM_TYPE]):
+    def __init__(self, enum_type: Type[ENUM]):
         super().__init__()
 
         self.enum_type = enum_type
@@ -39,19 +39,14 @@ class Enum(TypeDecorator[ENUM_TYPE]):
     def __repr__(self):
         return f'Enum(enums.{self.enum_type.__name__})'
 
-    def process_bind_param(self, value: int | str | ENUM_TYPE | None, dialect):
+    def process_bind_param(self, value: int | str | ENUM | None, dialect):
+        value = transform_enum(value, self.enum_type)
         if value is None:
             return
-        if isinstance(value, self.enum_type):
-            return value.value
-        if self.int_type and isinstance(value, int) or self.str_type and isinstance(value, str):
-            return self.enum_type(value).value
-        raise ValueError(f'"{value}" can`t process to "{repr(self)}"')
+        return value.value
 
-    def process_result_value(self, value: int | str | None, dialect) -> Optional[ENUM_TYPE]:
-        if value is None:
-            return None
-        return self.enum_type(value)
+    def process_result_value(self, value: int | str | ENUM | None, dialect) -> Optional[ENUM]:
+        return transform_enum(value, self.enum_type)
 
 
 class EnumInfo(ColumnInfo):
@@ -59,12 +54,13 @@ class EnumInfo(ColumnInfo):
 
 
 def enum(
-        enum_type: Type[ENUM_TYPE],
-        default: Optional[ENUM_TYPE] = EMPTY,
-        default_factory: Callable[[], Optional[ENUM_TYPE]] = EMPTY,
+        enum_type: Type[ENUM],
+        default: Optional[ENUM] = EMPTY,
+        default_factory: Callable[[], Optional[ENUM]] = EMPTY,
         nullable: bool = EMPTY,
         read_only: bool = False,
         hidden: bool = False,
+        filter_enable: bool = True,
         server_default: str | sa.TextClause = None,
 ):
     cleaned_kwargs = clean_kwargs(
@@ -72,7 +68,7 @@ def enum(
         default_factory=default_factory,
         nullable=nullable,
     )
-    info = EnumInfo(read_only=read_only, hidden=hidden)
+    info = EnumInfo(read_only=read_only, hidden=hidden, filter_enable=filter_enable)
 
     return mapped_column(
         Enum(enum_type),

@@ -12,7 +12,6 @@ from ..types import integer
 
 __all__ = ["ListModel", "LIST_MODEL"]
 
-LIST_MODEL = TypeVar('LIST_MODEL', bound="ListModel")
 PK = TypeVar('PK', int, str, UUID)
 
 
@@ -53,3 +52,6 @@ class ListModel(Model, Generic[OBJECT, PK]):
             back_populates=cls.__BACK_POPULATES__,
             cascade='all',
         )
+
+
+LIST_MODEL = TypeVar('LIST_MODEL', bound=ListModel)

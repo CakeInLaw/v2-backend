@@ -4,6 +4,7 @@ from typing import Callable
 import sqlalchemy as sa
 from sqlalchemy.orm import mapped_column
 
+from core.type_transformers import transform_time
 from core.constants import EMPTY
 from core.utils import clean_kwargs
 from core.settings import settings
@@ -36,6 +37,9 @@ class Time(TypeDecorator[dt.time]):
     def timezone(self) -> bool:
         return self.impl.timezone
 
+    def process_result_value(self, value: str | dt.time | None, dialect) -> dt.time | None:
+        return transform_time(value)
+
 
 class TimeInfo(ColumnInfo):
     fmt: str
@@ -52,6 +56,7 @@ def time(
         unique: bool = EMPTY,
         read_only: bool = False,
         hidden: bool = False,
+        filter_enable: bool = True,
         server_default: str | sa.TextClause = None,
 ):
     cleaned_kwargs = clean_kwargs(
@@ -60,7 +65,7 @@ def time(
         nullable=nullable,
         unique=unique,
     )
-    info = TimeInfo(read_only=read_only, hidden=hidden, fmt=fmt)
+    info = TimeInfo(read_only=read_only, hidden=hidden, filter_enable=filter_enable, fmt=fmt)
     return mapped_column(
         Time(timezone=timezone, gte=gte, lte=lte),
         info=info,

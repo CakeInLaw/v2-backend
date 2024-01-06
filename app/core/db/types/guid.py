@@ -3,6 +3,7 @@ from uuid import UUID
 import sqlalchemy as sa
 from sqlalchemy.orm import mapped_column
 
+from core.type_transformers import transform_guid
 from core.constants import EMPTY
 from core.utils import clean_kwargs, default_if_empty
 from ._base import TypeDecorator, ColumnInfo
@@ -15,6 +16,9 @@ class Guid(TypeDecorator[UUID]):
     impl = sa.UUID(as_uuid=True)
     repr_attrs = ()
     cache_ok = True
+
+    def process_result_value(self, value: str | UUID | None, dialect) -> UUID | None:
+        return transform_guid(value)
 
 
 class GuidInfo(ColumnInfo):
@@ -29,6 +33,7 @@ def guid(
         generated: bool = EMPTY,
         read_only: bool = EMPTY,
         hidden: bool = False,
+        filter_enable: bool = True,
 ):
     if primary_key:
         assert unique is EMPTY
@@ -41,7 +46,7 @@ def guid(
         unique=unique,
         server_default=sa.text('gen_random_uuid()') if generated is not False else EMPTY,
     )
-    info = GuidInfo(read_only=read_only, hidden=hidden)
+    info = GuidInfo(read_only=read_only, hidden=hidden, filter_enable=filter_enable)
     return mapped_column(
         Guid(),
         info=info,

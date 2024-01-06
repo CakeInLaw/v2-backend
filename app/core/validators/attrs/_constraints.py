@@ -1,11 +1,11 @@
 import re
+from typing import Generic, Callable, Iterator, TypeVar, Any, Type, Optional
 from datetime import date, datetime, time
-from decimal import Decimal, InvalidOperation
-from typing import Generic, Callable, Iterator, TypeVar, Any, Type
-from uuid import UUID
+from decimal import Decimal
 
+from core import type_transformers, types
 from core.schema import (
-    C as CONSTRAINT, ENUM,
+    C as CONSTRAINT,
     BooleanConstraint, DateConstraint, DateTimeConstraint,
     EnumConstraint, GuidConstraint, IntegerConstraint,
     NumericConstraint, StringConstraint, TimeConstraint, Types
@@ -25,6 +25,7 @@ T = TypeVar('T', bound=Any)
 
 
 class ConstraintValidator(Generic[CONSTRAINT, T]):
+    _transform: Callable[[Any], T | None]
 
     def __init__(self, constr: CONSTRAINT):
         self.constr = constr
@@ -32,36 +33,19 @@ class ConstraintValidator(Generic[CONSTRAINT, T]):
     def get_validators(self) -> Iterator[Callable]:
         return iter([])
 
-    def _transform(self, value: Any) -> T:
-        raise NotImplementedError
-
     def transform(self, value: Any) -> T | None:
-        if value is None:
-            return None
-        value = self._transform(value=value)
-        assert isinstance(value, self.constr.python_type)
-        return value
+        return self._transform(value)
 
 
 CONSTR_VAL = TypeVar('CONSTR_VAL', bound=ConstraintValidator)
 
 
 class BooleanConstraintValidator(ConstraintValidator[BooleanConstraint, bool]):
-    BOOL_TRUE = {1, '1', 'on', 't', 'true', 'y', 'yes'}
-    BOOL_FALSE = {0, '0', 'off', 'f', 'false', 'n', 'no'}
-
-    def _transform(self, value: int | str | bool) -> bool:
-        if not (value is True or value is False):
-            if value in self.BOOL_TRUE:
-                value = True
-            elif value in self.BOOL_FALSE:
-                value = False
-            else:
-                raise ValueError(f'Impossible to bring "{value}" to bool')
-        return value
+    _transform = type_transformers.transform_bool
 
 
 class DateConstraintValidator(ConstraintValidator[DateConstraint, date]):
+    _transform = type_transformers.transform_date
 
     def get_validators(self) -> Iterator[Callable]:
         if self.constr.gte is not None:
@@ -76,11 +60,6 @@ class DateConstraintValidator(ConstraintValidator[DateConstraint, date]):
     def _validate_lte(self, value: date):
         if value > self.constr.lte:
             raise err.DateLteError(value=self.constr.lte)
-
-    def _transform(self, value: str | date) -> date:
-        if isinstance(value, str):
-            value = date.fromisoformat(value)
-        return value
 
 
 class DateTimeConstraintValidator(ConstraintValidator[DateTimeConstraint, datetime]):
@@ -113,29 +92,23 @@ class DateTimeConstraintValidator(ConstraintValidator[DateTimeConstraint, dateti
         if value.tzinfo is None:
             raise err.DateTimeTimezoneAwareError
 
+    def transform(self, value: str | datetime | None) -> T | None:
+        return type_transformers.transform_datetime(value, with_timezone=self.constr.with_timezone)
 
-class EnumConstraintValidator(ConstraintValidator[EnumConstraint, ENUM]):
 
-    def _transform(self, value: str | int | ENUM) -> ENUM:
-        if isinstance(value, str):
-            if self.constr.is_int_enum:
-                value = int(value)
-            value = self.constr.python_type(value)
-        elif isinstance(value, int):
-            if self.constr.is_str_enum:
-                value = str(value)
-            value = self.constr.python_type(value)
-        return value
+class EnumConstraintValidator(ConstraintValidator[EnumConstraint, types.ENUM]):
+
+    def transform(self, value: str | int | types.ENUM) -> Optional[types.ENUM]:
+        return type_transformers.transform_enum(value, python_enum=self.constr.python_type)
 
 
 class GuidConstraintValidator(ConstraintValidator[GuidConstraint]):
-    def _transform(self, value: str | UUID) -> UUID:
-        if isinstance(value, str):
-            value = UUID(value)
-        return value
+    _transform = type_transformers.transform_guid
 
 
 class IntegerConstraintValidator(ConstraintValidator[IntegerConstraint]):
+    _transform = type_transformers.transform_integer
+
     def get_validators(self) -> Iterator[Callable]:
         if self.constr.gte is not None:
             yield self._validate_gte
@@ -150,13 +123,37 @@ class IntegerConstraintValidator(ConstraintValidator[IntegerConstraint]):
         if value > self.constr.lte:
             raise err.IntegerLteError(value=self.constr.lte)
 
-    def _transform(self, value: str | int) -> int:
-        if isinstance(value, str):
-            value = int(value)
-        return value
+
+class StringConstraintValidator(ConstraintValidator[StringConstraint]):
+    _transform = type_transformers.transform_string
+
+    def __init__(self, constr: StringConstraint):
+        super().__init__(constr=constr)
+        self.pattern = re.compile(self.constr.pattern) if self.constr.pattern else None
+
+    def get_validators(self) -> Iterator[Callable]:
+        if self.constr.min_length is not None:
+            yield self._validate_min_length
+        if self.constr.max_length is not None:
+            yield self._validate_max_length
+        if self.constr.pattern is not None:
+            yield self._validate_pattern
+
+    def _validate_min_length(self, value: str):
+        if len(value) < self.constr.min_length:
+            raise err.StringMinLengthError(self.constr.min_length)
+
+    def _validate_max_length(self, value: str):
+        if len(value) > self.constr.max_length:
+            raise err.StringMaxLengthError(self.constr.max_length)
+
+    def _validate_pattern(self, value: str):
+        if not self.pattern.match(value):
+            raise err.StringPatternError
 
 
 class NumericConstraintValidator(ConstraintValidator[NumericConstraint]):
+
     def get_validators(self) -> Iterator[Callable]:
         yield self._validate_size
         if self.constr.gte is not None:
@@ -191,60 +188,13 @@ class NumericConstraintValidator(ConstraintValidator[NumericConstraint]):
         if value >= self.constr.lt:
             raise err.NumericLtError(value=self.constr.lt)
 
-    def _transform(self, value: str | int | float | Decimal) -> Decimal:
-        if isinstance(value, (str, int, float)):
-            try:
-                value = Decimal(value)
-            except InvalidOperation:
-                raise ValueError(f'Incorrect decimal value, {value}')
-        if isinstance(value, Decimal):
-            return self.normalize(value)
-
-    def normalize(self, value: Decimal):
-        return value.quantize(self.step)
-
-    @property
-    def step(self) -> Decimal:
-        return Decimal(f'0.{"0" * (self.constr.scale - 1)}1')
-
-
-class StringConstraintValidator(ConstraintValidator[StringConstraint]):
-    _allowed_transform_types = (int, float, Decimal)
-
-    def __init__(self, constr: StringConstraint):
-        super().__init__(constr=constr)
-        self.pattern = re.compile(self.constr.pattern) if self.constr.pattern else None
-
-    def get_validators(self) -> Iterator[Callable]:
-        if self.constr.min_length is not None:
-            yield self._validate_min_length
-        if self.constr.max_length is not None:
-            yield self._validate_max_length
-        if self.constr.pattern is not None:
-            yield self._validate_pattern
-
-    def _validate_min_length(self, value: str):
-        if len(value) < self.constr.min_length:
-            raise err.StringMinLengthError(self.constr.min_length)
-
-    def _validate_max_length(self, value: str):
-        if len(value) > self.constr.max_length:
-            raise err.StringMaxLengthError(self.constr.max_length)
-
-    def _validate_pattern(self, value: str):
-        if not self.pattern.match(value):
-            raise err.StringPatternError
-
-    def _transform(self, value: str) -> str:
-        if not isinstance(value, str):
-            if isinstance(value, self._allowed_transform_types):
-                value = str(value)
-            else:
-                raise ValueError(f'Can`t convert "{value}" to str. Available types are {self._allowed_transform_types}')
-        return value.strip()
+    def transform(self, value: Decimal | None) -> Decimal | None:
+        return type_transformers.transform_numeric(value, self.constr.precision, self.constr.scale)
 
 
 class TimeConstraintValidator(ConstraintValidator[TimeConstraint]):
+    _transform = type_transformers.transform_time
+
     def get_validators(self) -> Iterator[Callable]:
         if self.constr.gte is not None:
             yield self._validate_gte
@@ -258,11 +208,6 @@ class TimeConstraintValidator(ConstraintValidator[TimeConstraint]):
     def _validate_lte(self, value: time):
         if value > self.constr.lte:
             raise err.TimeLteError(value=self.constr.lte)
-
-    def _transform(self, value: time | str) -> time:
-        if isinstance(value, str):
-            value = time.fromisoformat(value)
-        return value
 
 
 constraint_validators_map: dict[Types, Type[CONSTR_VAL]] = {

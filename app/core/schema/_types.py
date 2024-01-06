@@ -11,6 +11,26 @@ class Attrs(enum.StrEnum):
     COMPOSITE = 'composite'
     LIST = 'list'
 
+    @property
+    def is_column(self) -> bool:
+        return self is Attrs.COLUMN
+
+    @property
+    def is_property(self) -> bool:
+        return self is Attrs.PROPERTY
+
+    @property
+    def is_relation(self) -> bool:
+        return self is Attrs.RELATION
+
+    @property
+    def is_composite(self) -> bool:
+        return self is Attrs.COMPOSITE
+
+    @property
+    def is_list(self) -> bool:
+        return self is Attrs.LIST
+
 
 class Types(enum.StrEnum):
     BOOLEAN = 'boolean'

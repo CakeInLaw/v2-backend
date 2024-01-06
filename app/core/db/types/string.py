@@ -1,8 +1,10 @@
+from decimal import Decimal
 from typing import Callable
 
 import sqlalchemy as sa
 from sqlalchemy.orm import mapped_column
 
+from core.type_transformers import transform_string
 from core.constants import EMPTY
 from core.utils import clean_kwargs
 from ._base import TypeDecorator, ColumnInfo
@@ -30,6 +32,9 @@ class String(TypeDecorator[str]):
     def max_length(self) -> int | None:
         return self.impl.length
 
+    def process_result_value(self, value: int | float | Decimal | str | None, dialect) -> bool | None:
+        return transform_string(value)
+
 
 class StringInfo(ColumnInfo):
     pattern: str | None
@@ -46,6 +51,7 @@ def string(
         primary_key: bool = False,
         read_only: bool = False,
         hidden: bool = False,
+        filter_enable: bool = True,
         pattern: str = None,
         server_default: str | sa.TextClause = None,
 ):
@@ -55,7 +61,7 @@ def string(
         nullable=nullable,
         unique=unique,
     )
-    info = StringInfo(read_only=read_only, hidden=hidden, pattern=pattern)
+    info = StringInfo(read_only=read_only, hidden=hidden, filter_enable=filter_enable, pattern=pattern)
     return mapped_column(
         String(min_length=min_length, max_length=max_length),
         primary_key=primary_key,

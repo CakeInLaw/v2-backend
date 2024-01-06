@@ -1,7 +1,7 @@
 from typing import TypeVar, Type, TYPE_CHECKING
 
 from core.schema import ListSchema
-from core.validators.models import ModelValidator
+from .models import ModelValidator
 
 if TYPE_CHECKING:
     from core.repositories import LIST_REP
@@ -17,9 +17,7 @@ class ListValidator(ModelValidator[ListSchema]):
 
     @classmethod
     def bind(cls: Type["LIST_VAL"], schema: ListSchema) -> Type["LIST_VAL"]:
-        if hasattr(cls, 'schema'):
-            raise Exception(f'{cls} is already bound')
-        return type(f'{schema.name}{cls.__name__}', (cls, ), {'schema': schema})  # type: ignore
+        return type(f'{schema.name}{cls.__name__}', (cls, ), {}, schema=schema)  # type: ignore
 
     def validate_list(self): ...  # TODO
 

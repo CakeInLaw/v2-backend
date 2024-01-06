@@ -1,9 +1,10 @@
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal
 from typing import Callable
 
 import sqlalchemy as sa
 from sqlalchemy.orm import mapped_column
 
+from core.type_transformers import transform_numeric
 from core.constants import EMPTY
 from core.utils import clean_kwargs
 from ._base import TypeDecorator, ColumnInfo
@@ -63,31 +64,11 @@ class Numeric(TypeDecorator[float]):
     def scale(self) -> int:
         return self.impl.scale
 
-    @property
-    def step(self) -> Decimal:
-        return Decimal(f'0.{"0" * (self.scale - 1)}1')
-
-    def to_decimal(self, raw: str | int | float):
-        try:
-            value = Decimal(raw)
-        except InvalidOperation:
-            raise ValueError(f'Incorrect decimal value, {raw}')
-        return self.normalize(value)
-
-    def normalize(self, value: Decimal) -> Decimal:
-        return value.quantize(self.step)
-
-    def responds(self, value: Decimal) -> bool:
-        _, digits, exp = value.as_tuple()
-        return (
-            self.scale == -exp  # comparing right path of decimal
-            and self.precision >= (len(digits) - self.scale)  # comparing left part of decimal
-        )
-
     def process_bind_param(self, value: Decimal, dialect):
-        if value is None:
-            return
-        return self.normalize(value)
+        return transform_numeric(value, self.precision, self.scale)
+
+    def process_result_value(self, value: int | str | None, dialect) -> bool | None:
+        return transform_numeric(value, self.precision, self.scale)
 
 
 class NumericInfo(ColumnInfo):
@@ -112,6 +93,7 @@ def numeric(
         unique: bool = EMPTY,
         read_only: bool = False,
         hidden: bool = False,
+        filter_enable: bool = True,
         server_default: str | sa.TextClause = None,
 ):
     cleaned_kwargs = clean_kwargs(
@@ -120,7 +102,7 @@ def numeric(
         nullable=nullable,
         unique=unique,
     )
-    info = NumericInfo(read_only=read_only, hidden=hidden)
+    info = NumericInfo(read_only=read_only, hidden=hidden, filter_enable=filter_enable)
 
     gt = Decimal('0') if positive else gt
     gte = Decimal('0') if non_negative else gte

@@ -1,4 +1,4 @@
-from typing import Generic, TypeVar, Any, Type, cast
+from typing import Generic, TypeVar
 
 from core.schema import M_SCH
 from .attrs import (
@@ -10,49 +10,10 @@ from .attrs import (
 )
 
 
-__all__ = ["ModelValidatorMeta", "ModelValidator", "M_VAL"]
+__all__ = ["ModelValidator", "M_VAL"]
 
 
-class ModelValidatorMeta(type):
-    def __new__(mcs, name: str, bases: tuple[type, ...], attrs: dict[str, Any]):
-        new_cls = cast(Type[M_VAL], super().__new__(mcs, name, bases, attrs))
-        if 'schema' not in attrs:
-            return new_cls
-
-        schema = new_cls.schema
-
-        new_cls._columns = {
-            col_schema.name: get_column_validator(schema=col_schema, parent=new_cls)
-            for col_schema in schema.get_columns()
-        }
-        new_cls._relations = {
-            rel_schema.name: get_relation_validator(schema=rel_schema, parent=new_cls)
-            for rel_schema in schema.get_relations()
-        }
-        new_cls._properties = {
-            prop_schema.name: get_property_validator(schema=prop_schema, parent=new_cls)
-            for prop_schema in schema.get_properties()
-        }
-        new_cls._composites = {
-            comp_schema.name: get_composite_validator(schema=comp_schema, parent=new_cls)
-            for comp_schema in schema.get_composites()
-        }
-
-        new_cls.available_attrs = {}
-        new_cls.required_attrs = set()
-        for col_validator in new_cls._columns.values():
-            col_validator.modify_parent()
-        for rel_validator in new_cls._relations.values():
-            rel_validator.modify_parent()
-        for prop_validator in new_cls._properties.values():
-            prop_validator.modify_parent()
-        for comp_validator in new_cls._composites.values():
-            comp_validator.modify_parent()
-
-        return new_cls
-
-
-class ModelValidator(Generic[M_SCH], metaclass=ModelValidatorMeta):
+class ModelValidator(Generic[M_SCH]):
     is_list: bool = False
 
     schema: M_SCH
@@ -95,6 +56,44 @@ class ModelValidator(Generic[M_SCH], metaclass=ModelValidatorMeta):
     @classmethod
     def get_composite(cls, name: str) -> CompositeValidator:
         return cls._composites[name]
+
+    @classmethod
+    def is_schema_bound(cls) -> bool:
+        return getattr(cls, 'schema', None) is not None
+
+    def __init_subclass__(cls, schema: M_SCH = None):
+        if schema is None:
+            return
+        assert cls.is_schema_bound()
+
+        cls.schema = schema
+        cls._columns = {
+            col_schema.name: get_column_validator(schema=col_schema, parent=cls)
+            for col_schema in schema.get_columns()
+        }
+        cls._relations = {
+            rel_schema.name: get_relation_validator(schema=rel_schema, parent=cls)
+            for rel_schema in schema.get_relations()
+        }
+        cls._properties = {
+            prop_schema.name: get_property_validator(schema=prop_schema, parent=cls)
+            for prop_schema in schema.get_properties()
+        }
+        cls._composites = {
+            comp_schema.name: get_composite_validator(schema=comp_schema, parent=cls)
+            for comp_schema in schema.get_composites()
+        }
+
+        cls.available_attrs = {}
+        cls.required_attrs = set()
+        for col_validator in cls._columns.values():
+            col_validator.modify_parent()
+        for rel_validator in cls._relations.values():
+            rel_validator.modify_parent()
+        for prop_validator in cls._properties.values():
+            prop_validator.modify_parent()
+        for comp_validator in cls._composites.values():
+            comp_validator.modify_parent()
 
 
 M_VAL = TypeVar('M_VAL', bound=ModelValidator)

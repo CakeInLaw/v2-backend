@@ -4,6 +4,7 @@ from typing import Callable
 import sqlalchemy as sa
 from sqlalchemy.orm import mapped_column
 
+from core.type_transformers import transform_date
 from core.constants import EMPTY
 from core.utils import clean_kwargs
 from core.settings import settings
@@ -31,6 +32,9 @@ class Date(TypeDecorator[dt.date]):
         self.gte = gte
         self.lte = lte
 
+    def process_result_value(self, value: str | dt.date | None, dialect) -> dt.date | None:
+        return transform_date(value)
+
 
 class DateInfo(ColumnInfo):
     fmt: str
@@ -46,6 +50,7 @@ def date(
         unique: bool = EMPTY,
         read_only: bool = False,
         hidden: bool = False,
+        filter_enable: bool = True,
         server_default: str | sa.TextClause = None,
 ):
     cleaned_kwargs = clean_kwargs(
@@ -54,7 +59,7 @@ def date(
         nullable=nullable,
         unique=unique,
     )
-    info = DateInfo(read_only=read_only, hidden=hidden, fmt=fmt)
+    info = DateInfo(read_only=read_only, hidden=hidden, filter_enable=filter_enable, fmt=fmt)
     return mapped_column(
         Date(gte=gte, lte=lte),
         info=info,
