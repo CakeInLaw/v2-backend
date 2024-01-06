@@ -27,6 +27,8 @@ __all__ = [
     "StringPatternError",
     "TimeGteError",
     "TimeLteError",
+
+    "IncorrectAttr",
 ]
 
 
@@ -63,3 +65,5 @@ StringPatternError = ColumnValidationError('types.string.incorrect_pattern')
 
 TimeGteError = _VColumnValidationError[time]('types.time.gte')
 TimeLteError = _VColumnValidationError[time]('types.time.lte')
+
+IncorrectAttr = _VColumnValidationError[str]('composites.one_of.incorrect_attr')

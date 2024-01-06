@@ -3,7 +3,7 @@ from typing import Any, TYPE_CHECKING, Type, TypeVar
 from core.schema import O_SCH, DIR_SCH, DOC_SCH
 from .models import ModelValidator
 from .lists import ListValidator
-from .exceptions import ObjectErrors, UnexpectedAttr, RequiredAttr
+from .exceptions import ObjectErrors, UnexpectedAttr, RequiredAttr, ValidationError, ListErrors
 
 if TYPE_CHECKING:
     from core.repositories import O_REP
@@ -29,21 +29,38 @@ class ObjectValidator(ModelValidator[O_SCH]):
     def get_list(self, name: str) -> ListValidator:
         return self._lists[name](repository=self.repository.list_repository(name))
 
-    async def validate(self, data: dict[str, Any]) -> dict[str, Any]:  # TODO
+    async def validate(self, data: dict[str, Any]) -> dict[str, Any]:
         create = self.repository.instance is not None
         errors = ObjectErrors()
 
         for attr in data:
-            if attr not in self.available_attrs:
+            if attr not in self.available_attrs or attr not in self._lists:
                 errors.add(attr, UnexpectedAttr)
         if create:
             for attr in self.required_attrs:
                 if attr not in data:
                     errors.add(attr, RequiredAttr)
+            for list_name in self._lists:
+                if list_name not in data:
+                    errors.add(list_name, RequiredAttr)
         if errors:
             raise errors
 
         valid_data = {}
+        for attr, value in data.items():
+            if attr in self.available_attrs:
+                try:
+                    valid_data[attr] = await self.get_available_attr(attr).validate(value, repository=self.repository)
+                except ValidationError as err:
+                    errors.add(attr, err)
+            else:
+                try:
+                    valid_data[attr] = await self.get_list(attr).validate_list(value)
+                except ListErrors as err:
+                    errors.add(attr, error=err)
+        if errors:
+            raise errors
+        return valid_data
 
     def __init_subclass__(cls, schema: O_SCH = None):
         super().__init_subclass__(schema=schema)

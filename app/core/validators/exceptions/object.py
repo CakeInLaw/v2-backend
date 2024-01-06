@@ -12,7 +12,7 @@ class RootError(ValidationError):
 
 class ListErrors(Exception):
     def __init__(self):
-        self._objects_map: dict[int, "ObjectErrors"] = {}
+        self._objects_map: dict[int, Union["ObjectErrors", ValidationError]] = {}
 
     def export(self):
         return {k: err.export() for k, err in self._objects_map.items()}
@@ -28,6 +28,9 @@ class ListErrors(Exception):
 
     def __getitem__(self, item: int):
         return self._objects_map[item]
+
+    def __iter__(self):
+        return iter(self._objects_map.items())
 
 
 class ObjectErrors(Exception):

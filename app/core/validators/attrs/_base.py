@@ -1,6 +1,7 @@
 from inspect import getfullargspec, iscoroutinefunction
 from typing import Generic, TypeVar, Any, TYPE_CHECKING, Type, Union, Callable
 
+from core.constants import EMPTY
 from core.schema import A_SCH
 from ..exceptions import ValidationError, NonNullable, ListErrors
 
@@ -30,16 +31,19 @@ class AttrValidator(Generic[A_SCH, T]):
     async def validate(self, value: Any, repository: ParentRepository) -> T:
         raise NotImplementedError()
 
-    async def validate_list(self, list_of_values: list, repository: ParentRepository) -> list[T]:
-        errors = ListErrors()
+    async def validate_list(self, list_of_values: list, repository: LIST_REP) -> list[T]:
+        list_errors = ListErrors()
         valid_list = []
         for idx, value in enumerate(list_of_values):
-            try:
-                valid_list.append(await self.validate(value=value, repository=repository))
-            except ValidationError as err:
-                errors.add(idx=idx, err=err)
-        if errors:
-            raise errors
+            if value is EMPTY:
+                valid_list.append(EMPTY)
+            else:
+                try:
+                    valid_list.append(await self.validate(value=value, repository=repository))
+                except ValidationError as err:
+                    list_errors.add(idx=idx, err=err)
+        if list_errors:
+            raise list_errors
         return valid_list
 
     def modify_parent(self):
@@ -64,8 +68,12 @@ class AttrValidator(Generic[A_SCH, T]):
             raise ValueError(f'{self} has no validator {func}')
         self._validators.remove(rm)
 
+    @property
+    def is_nullable(self) -> bool:
+        return self.schema.nullable
+
     def raise_if_non_nullable(self) -> None:
-        if not self.schema.nullable:
+        if not self.is_nullable:
             raise NonNullable
 
 
