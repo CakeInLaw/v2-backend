@@ -6,7 +6,7 @@ from sqlalchemy.orm import mapped_column
 
 from core.type_transformers import transform_datetime
 from core.constants import EMPTY
-from core.utils import clean_kwargs
+from core.utils import clean_kwargs, default_if_empty
 from core.settings import settings
 from ._base import TypeDecorator, ColumnInfo
 
@@ -15,7 +15,7 @@ __all__ = ["DateTime", "DateTimeInfo", "datetime"]
 
 
 class DateTime(TypeDecorator[dt.datetime]):
-
+    cache_ok = True
     impl: sa.DateTime | sa.TIMESTAMP
     repr_attrs = ('timezone',)
 
@@ -52,7 +52,7 @@ def datetime(
         timezone: bool = False,
         gte: dt.datetime = None,
         lte: dt.datetime = None,
-        fmt: str = settings.default_datetime_fmt,
+        fmt: str = EMPTY,
         default: dt.datetime | None = EMPTY,
         default_factory: Callable[[], dt.datetime | None] = EMPTY,
         nullable: bool = EMPTY,
@@ -69,7 +69,10 @@ def datetime(
         nullable=nullable,
         unique=unique,
     )
-    info = DateTimeInfo(read_only=read_only, hidden=hidden, filter_enable=filter_enable, fmt=fmt)
+    info = DateTimeInfo(
+        read_only=read_only, hidden=hidden, filter_enable=filter_enable,
+        fmt=default_if_empty(fmt, settings.default_datetime_fmt)
+    )
     if auto_now_add:
         server_default = sa.func.now()
     return mapped_column(

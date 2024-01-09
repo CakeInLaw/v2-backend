@@ -1,4 +1,8 @@
 import asyncio
+from uuid import uuid4
+
+from sqlalchemy import select, Column
+from sqlalchemy.orm import joinedload
 
 from core.db.connection import get_session
 from core.db.models import get_base_metadata
@@ -6,25 +10,12 @@ from core.schema import create_default_app_schema, get_default_app_schema
 
 
 async def test():
-    from directories.employees.repository import EmployeeRepository
-    from directories.users.repository import UserRepository
+    from directories.users.models import User
+    from directories.employees.models import Employee
     x = get_session()
     session = await anext(x)
-    repo = EmployeeRepository(session)
-    repo.bind_instance(await repo.get('6d967433-0baa-4339-a546-f68559f79a5b'))
-    create_default_app_schema()
-    print(get_default_app_schema().model_dump_json(indent=4))
-    # try:
-    #     await UserRepository(session=session).create({"username": "tascar44"})
-    # except ObjectErrors as e:
-    #     print(json.dumps(e.export(), indent=4))
-    #     raise e
-    # try:
-    #     await repo.update({"name": 'Александр', 'user': 'ab5e9ae4-a784-487f-9ccf-6201d8abb4e8'})
-    # except ObjectErrors as e:
-    #     print(json.dumps(e.export(), indent=4))
-    #     raise e
-    # await session.commit()
+    query = select(Employee).options(joinedload(Employee.user)).where(Column("users_1.username", quote=False) == 'ass')
+    print(await session.scalars(query))
 
 
 get_base_metadata(init_first=True)

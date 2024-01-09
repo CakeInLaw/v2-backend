@@ -6,7 +6,7 @@ from sqlalchemy.orm import mapped_column
 
 from core.type_transformers import transform_time
 from core.constants import EMPTY
-from core.utils import clean_kwargs
+from core.utils import clean_kwargs, default_if_empty
 from core.settings import settings
 from ._base import TypeDecorator, ColumnInfo
 
@@ -15,7 +15,7 @@ __all__ = ["Time", "TimeInfo", "time"]
 
 
 class Time(TypeDecorator[dt.time]):
-
+    cache_ok = True
     impl: sa.Time
     repr_attrs = ('timezone',)
 
@@ -49,7 +49,7 @@ def time(
         timezone: bool = False,
         gte: dt.time = None,
         lte: dt.time = None,
-        fmt: str = settings.default_time_fmt,
+        fmt: str = EMPTY,
         default: dt.time | None = EMPTY,
         default_factory: Callable[[], dt.time | None] = EMPTY,
         nullable: bool = EMPTY,
@@ -65,7 +65,10 @@ def time(
         nullable=nullable,
         unique=unique,
     )
-    info = TimeInfo(read_only=read_only, hidden=hidden, filter_enable=filter_enable, fmt=fmt)
+    info = TimeInfo(
+        read_only=read_only, hidden=hidden, filter_enable=filter_enable,
+        fmt=default_if_empty(fmt, settings.default_time_fmt)
+    )
     return mapped_column(
         Time(timezone=timezone, gte=gte, lte=lte),
         info=info,

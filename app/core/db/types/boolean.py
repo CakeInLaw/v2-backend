@@ -13,6 +13,7 @@ __all__ = ["Boolean", "BooleanInfo", "boolean"]
 
 
 class Boolean(TypeDecorator[bool]):
+    cache_ok = True
     impl = sa.Boolean()
     repr_attrs = ()
 

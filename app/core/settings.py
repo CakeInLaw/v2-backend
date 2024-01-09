@@ -1,13 +1,12 @@
-from typing import ClassVar
+from typing import ClassVar, cast
 
 from pydantic import BaseModel
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings as PydanticBaseSettings, SettingsConfigDict
 
-from core.utils import import_string
-from .db import DBConf
+from core.utils.lazy import LazyImport
 
 
-__all__ = ["Settings", "settings"]
+__all__ = ["BaseSettings", "settings"]
 
 
 class AppSettings(BaseModel):
@@ -15,25 +14,17 @@ class AppSettings(BaseModel):
     DEBUG: bool
 
 
-class Settings(BaseSettings):
+class BaseSettings(PydanticBaseSettings):
     model_config = SettingsConfigDict(env_nested_delimiter='__')
 
     app: AppSettings
-    db: DBConf
 
-    entities: ClassVar[list[str]] = [
-        'directories.users',
-        'directories.employees',
-    ]
+    entities: ClassVar[list[str]]
+    schema_collectors: ClassVar[list[str]]
 
-    schema_collectors: ClassVar[list[str]] = [
-        'core.schema_collectors.LocalEnumSchemaCollector',
-        'core.schema_collectors.SaDirectorySchemaCollector',
-        'core.schema_collectors.SaDocumentSchemaCollector',
-    ]
     default_date_fmt: ClassVar[str] = '{dd}.{mm}.{YYYY}'
     default_datetime_fmt: ClassVar[str] = '{HH}:{MM}:{SS} {dd}.{mm}.{YYYY}'
     default_time_fmt: ClassVar[str] = '{HH}:{MM}:{SS}'
 
 
-settings = Settings(_env_file='.env')
+settings = cast(BaseSettings, LazyImport('settings.settings'))

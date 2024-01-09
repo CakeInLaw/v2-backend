@@ -14,6 +14,7 @@ __all__ = ["Numeric", "NumericInfo", "numeric"]
 
 
 class Numeric(TypeDecorator[float]):
+    cache_ok = True
     impl: sa.Numeric
     repr_attrs = ('precision', 'scale')
 

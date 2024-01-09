@@ -7,6 +7,9 @@ from core.db import types
 from enums import UserRoles
 
 
+__all__ = ["User"]
+
+
 class User(Directory):
     username: Mapped[str] = types.string(min_length=4, max_length=20, unique=True)
 

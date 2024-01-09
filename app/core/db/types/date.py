@@ -6,7 +6,7 @@ from sqlalchemy.orm import mapped_column
 
 from core.type_transformers import transform_date
 from core.constants import EMPTY
-from core.utils import clean_kwargs
+from core.utils import clean_kwargs, default_if_empty
 from core.settings import settings
 from ._base import TypeDecorator, ColumnInfo
 
@@ -15,7 +15,7 @@ __all__ = ["Date", "DateInfo", "date"]
 
 
 class Date(TypeDecorator[dt.date]):
-
+    cache_ok = True
     impl: sa.Date
     repr_attrs = ()
 
@@ -43,7 +43,7 @@ class DateInfo(ColumnInfo):
 def date(
         gte: dt.date = None,
         lte: dt.date = None,
-        fmt: str = settings.default_date_fmt,
+        fmt: str = EMPTY,
         default: dt.date | None = EMPTY,
         default_factory: Callable[[], dt.date | None] = EMPTY,
         nullable: bool = EMPTY,
@@ -59,7 +59,10 @@ def date(
         nullable=nullable,
         unique=unique,
     )
-    info = DateInfo(read_only=read_only, hidden=hidden, filter_enable=filter_enable, fmt=fmt)
+    info = DateInfo(
+        read_only=read_only, hidden=hidden, filter_enable=filter_enable,
+        fmt=default_if_empty(fmt, settings.default_date_fmt)
+    )
     return mapped_column(
         Date(gte=gte, lte=lte),
         info=info,

@@ -12,8 +12,8 @@ from ._base import TypeDecorator, ColumnInfo
 __all__ = ["Integer", "SmallInteger", "BigInteger", "IntegerInfo", "integer"]
 
 
-
 class Integer(TypeDecorator[int]):
+    cache_ok = True
     impl: sa.Integer
     repr_attrs = ()
     _min_min_value = -2147483648

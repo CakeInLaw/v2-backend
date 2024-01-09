@@ -14,6 +14,7 @@ __all__ = ["String", "StringInfo", "string"]
 
 
 class String(TypeDecorator[str]):
+    cache_ok = True
     impl: sa.String
     repr_attrs = ('max_length', )
 

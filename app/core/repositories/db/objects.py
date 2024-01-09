@@ -41,6 +41,9 @@ class SaObjectRepository(AbstractObjectRepository[OBJECT, O_SCH, O_VAL]):
     async def get(self, **kwargs): ...
 
     async def get_many(self, pks: list[PK], **kwargs) -> dict[PK, OBJECT]:
+        result = await self.session.scalars(select(self.model).where(self.get_pk_attr().in_(pks)))
+        pk_attr = self.schema.primary_key
+        return {getattr(obj, pk_attr): obj for obj in result}
 
     async def get_one(self, pk: PK, raise_if_none: bool = True, **kwargs) -> OBJECT | None:
         result = await self.session.scalar(select(self.model).where(self.get_pk_attr() == pk))
